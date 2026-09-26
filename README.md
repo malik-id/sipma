@@ -1,149 +1,112 @@
 # Sistem Informasi Pemilihan Mahasiswa
 
-Sistem Informasi Pemilihan Mahasiswa adalah aplikasi berbasis web yang dirancang untuk mendukung proses pemilihan Ketua dan Wakil Ketua organisasi mahasiswa di lingkungan Fakultas Ilmu Komputer.
+Sistem Informasi Pemilihan Mahasiswa adalah aplikasi berbasis web yang dirancang untuk mendukung proses pemilihan Ketua dan Wakil Ketua organisasi mahasiswa di lingkungan **Fakultas Ilmu Komputer**.
 
-Sistem mencakup pengelolaan data mahasiswa dan pemilih, pendaftaran bakal calon, verifikasi administrasi, penetapan calon, proses voting, penghitungan suara, publikasi hasil, serta audit aktivitas sistem.
+Sistem menangani proses pemilihan mulai dari pendataan mahasiswa dan pemilih, pendaftaran bakal calon, verifikasi administrasi, penetapan calon, pelaksanaan voting, penghitungan suara, publikasi hasil, hingga audit aktivitas sistem.
 
-Aplikasi dirancang dengan prinsip utama:
+Sistem dirancang dengan memperhatikan:
 
 - integritas pemilihan;
 - kerahasiaan suara;
 - pencegahan voting ganda;
-- validasi data pemilih;
-- validasi bakal calon;
-- keamanan;
+- validitas pemilih;
+- validitas bakal calon;
+- keamanan aplikasi;
 - transparansi proses;
 - auditability;
 - maintainability;
-- usability.
+- usability;
+- kolaborasi pengembangan melalui Git dan GitHub.
+
+---
+
+# Daftar Isi
+
+1. [Tujuan Sistem](#1-tujuan-sistem)
+2. [Alur Utama Sistem](#2-alur-utama-sistem)
+3. [Spesifikasi Teknologi](#3-spesifikasi-teknologi)
+4. [Jenis Pengguna](#4-jenis-pengguna)
+5. [Modul dan Fitur](#5-modul-dan-fitur)
+6. [Authentication Google](#6-authentication-google)
+7. [Master Data Mahasiswa](#7-master-data-mahasiswa)
+8. [Daftar Pemilih](#8-daftar-pemilih)
+9. [Pengecekan Status Pemilih](#9-pengecekan-status-pemilih)
+10. [Election Management](#10-election-management)
+11. [Pendaftaran Bakal Calon](#11-pendaftaran-bakal-calon)
+12. [Persyaratan Bakal Calon](#12-persyaratan-bakal-calon)
+13. [Verifikasi Bakal Calon](#13-verifikasi-bakal-calon)
+14. [Penetapan Calon](#14-penetapan-calon)
+15. [Publikasi Kandidat](#15-publikasi-kandidat)
+16. [Voting](#16-voting)
+17. [Kerahasiaan Suara](#17-kerahasiaan-suara)
+18. [Pencegahan Voting Ganda](#18-pencegahan-voting-ganda)
+19. [Hasil Pemilihan](#19-hasil-pemilihan)
+20. [Audit Log](#20-audit-log)
+21. [Struktur Database](#21-struktur-database)
+22. [Keamanan](#22-keamanan)
+23. [Routing](#23-routing)
+24. [Struktur Project](#24-struktur-project)
+25. [Instalasi](#25-instalasi)
+26. [Environment](#26-environment)
+27. [Testing](#27-testing)
+28. [Workflow Pengembangan Tim](#28-workflow-pengembangan-tim)
+29. [Branch Strategy](#29-branch-strategy)
+30. [GitHub Issues](#30-github-issues)
+31. [Pull Request](#31-pull-request)
+32. [Code Review](#32-code-review)
+33. [Definition of Done](#33-definition-of-done)
+34. [Roadmap Pengembangan](#34-roadmap-pengembangan)
+35. [Status Project](#35-status-project)
 
 ---
 
 # 1. Tujuan Sistem
 
-Sistem ini dikembangkan untuk mendigitalisasi proses pemilihan mahasiswa mulai dari tahap persiapan hingga publikasi hasil.
+Tujuan utama sistem adalah mendigitalisasi dan menata proses pemilihan mahasiswa agar:
 
-Secara umum sistem mendukung alur:
+- data pemilih dapat diverifikasi;
+- pendaftaran bakal calon dapat dilakukan secara terstruktur;
+- persyaratan calon dapat divalidasi;
+- proses verifikasi dapat diaudit;
+- pemberian suara dilakukan secara aman;
+- satu pemilih hanya dapat memberikan satu suara;
+- pilihan pemilih tetap rahasia;
+- hasil pemilihan dapat dihitung secara otomatis;
+- pengembangan aplikasi dapat dilakukan secara kolaboratif.
 
-```text
-Persiapan Pemilihan
-        ↓
-Pendataan Mahasiswa
-        ↓
-Penetapan Daftar Pemilih
-        ↓
-Pendaftaran Bakal Calon
-        ↓
-Verifikasi Administrasi
-        ↓
-Penetapan Calon
-        ↓
-Publikasi Kandidat
-        ↓
-Pelaksanaan Voting
-        ↓
-Penghitungan Suara
-        ↓
-Publikasi Hasil
-        ↓
-Arsip dan Audit
+---
+
+# 2. Alur Utama Sistem
+
+```mermaid
+flowchart TD
+    A[Persiapan Pemilihan] --> B[Pendataan Mahasiswa]
+    B --> C[Penetapan Daftar Pemilih]
+    C --> D[Pendaftaran Bakal Calon]
+    D --> E[Verifikasi Administrasi]
+    E --> F[Penetapan Calon]
+    F --> G[Penetapan Nomor Urut]
+    G --> H[Publikasi Kandidat]
+    H --> I[Pelaksanaan Voting]
+    I --> J[Penghitungan Suara]
+    J --> K[Publikasi Hasil]
+    K --> L[Arsip dan Audit]
 ```
 
 ---
 
-# 2. Ruang Lingkup Sistem
-
-Sistem memiliki beberapa modul utama:
-
-1. Authentication
-2. Master Data Mahasiswa
-3. Daftar Pemilih
-4. Pengecekan Status Pemilih
-5. Election Management
-6. Pendaftaran Bakal Calon
-7. Verifikasi Bakal Calon
-8. Penetapan Kandidat
-9. Publikasi Kandidat
-10. Voting
-11. Monitoring Partisipasi
-12. Penghitungan Suara
-13. Publikasi Hasil
-14. Audit Log
-15. System Settings
-
----
-
-# 3. Jenis Pengguna
-
-## 3.1 Super Admin
-
-Super Admin memiliki hak akses tertinggi terhadap aplikasi.
-
-Fitur utama:
-
-- mengelola administrator;
-- mengelola role dan permission;
-- mengelola konfigurasi sistem;
-- mengelola periode pemilihan;
-- melihat audit log;
-- mengakses seluruh modul administratif sesuai kewenangan.
-
----
-
-## 3.2 Admin / Panitia
-
-Admin atau Panitia Pemilihan bertugas mengelola operasional pemilihan.
-
-Fitur utama:
-
-- mengelola data mahasiswa;
-- import data mahasiswa;
-- mengelola daftar pemilih;
-- import data pemilih;
-- mengelola periode pemilihan;
-- mengelola persyaratan bakal calon;
-- memverifikasi pendaftaran;
-- meminta perbaikan dokumen;
-- menolak atau memverifikasi pendaftaran;
-- menetapkan calon;
-- menetapkan nomor urut;
-- memonitor tingkat partisipasi;
-- mengelola hasil pemilihan;
-- melihat audit aktivitas.
-
-Admin tidak diperbolehkan melihat hubungan antara identitas pemilih dengan pilihan kandidat.
-
----
-
-## 3.3 Mahasiswa
-
-Mahasiswa dapat menggunakan sistem untuk:
-
-- login menggunakan akun Google;
-- mengecek status sebagai pemilih;
-- melihat profil;
-- melihat daftar kandidat;
-- mendaftar sebagai bakal calon jika memenuhi syarat;
-- mengunggah persyaratan;
-- melihat status verifikasi;
-- memperbaiki dokumen;
-- melakukan voting jika terdaftar sebagai pemilih;
-- melihat status bahwa suara telah berhasil diberikan.
-
----
-
-# 4. Teknologi
-
-Stack utama yang direkomendasikan:
+# 3. Spesifikasi Teknologi
 
 ## Backend
 
 - Laravel
 - PHP
-- Laravel Socialite
 - Laravel Form Request
-- Laravel Policy / Gate
+- Laravel Policy
+- Laravel Gate
 - Laravel Middleware
+- Laravel Socialite
+- Service / Action Class jika diperlukan
 
 ## Frontend
 
@@ -155,11 +118,12 @@ Stack utama yang direkomendasikan:
 ## Database
 
 - MySQL
-- MariaDB
+- atau MariaDB
 
 ## Authentication
 
 - Google OAuth 2.0
+- Laravel Socialite
 
 ## Development Tools
 
@@ -170,83 +134,161 @@ Stack utama yang direkomendasikan:
 
 ## Testing
 
-- PHPUnit atau Pest sesuai konfigurasi project
+- PHPUnit
+- atau Pest sesuai konfigurasi project
 
----
-
-# 5. Timezone
-
-Sistem menggunakan timezone:
+## Timezone
 
 ```text
 Asia/Makassar
 ```
 
-Timezone digunakan pada:
+---
 
-- periode pendaftaran;
-- periode verifikasi;
-- periode voting;
-- pencatatan audit;
-- publikasi hasil;
-- aktivitas sistem lainnya.
+# 4. Jenis Pengguna
+
+## 4.1 Super Admin
+
+Super Admin memiliki hak akses tertinggi.
+
+Fitur:
+
+- mengelola administrator;
+- mengelola role dan permission;
+- mengelola konfigurasi sistem;
+- mengelola election;
+- melihat audit log;
+- mengakses seluruh modul administratif sesuai kewenangan.
 
 ---
 
-# 6. Authentication
+## 4.2 Admin / Panitia Pemilihan
 
-Mahasiswa melakukan login menggunakan Google OAuth.
+Admin atau panitia dapat:
 
-Alur:
+- mengelola mahasiswa;
+- import mahasiswa;
+- mengelola daftar pemilih;
+- import daftar pemilih;
+- membuat periode pemilihan;
+- mengatur persyaratan bakal calon;
+- memverifikasi bakal calon;
+- meminta revisi;
+- menolak pendaftaran;
+- memverifikasi pendaftaran;
+- menetapkan calon;
+- menentukan nomor urut;
+- memonitor partisipasi pemilih;
+- mengelola publikasi hasil;
+- melihat audit log.
 
-```text
-Mahasiswa
-   ↓
-Login dengan Google
-   ↓
-Google Authentication
-   ↓
-OAuth Callback
-   ↓
-Ambil Email Google
-   ↓
-Cari Email pada Database Mahasiswa
-   ↓
-Ditemukan?
-   ├── Ya → Login ke Sistem
-   └── Tidak → Akses Ditolak
-```
-
-Keberhasilan login Google tidak otomatis menjadikan mahasiswa sebagai pemilih.
-
-Status pemilih tetap ditentukan berdasarkan database election.
+Admin **tidak boleh mengetahui siapa memilih kandidat tertentu**.
 
 ---
 
-# 7. Data Mahasiswa
+## 4.3 Mahasiswa
 
-Master data mahasiswa disimpan pada tabel `students`.
+Mahasiswa dapat:
 
-Data utama:
+- login menggunakan Google;
+- melihat profil;
+- mengecek status sebagai pemilih;
+- melihat daftar kandidat;
+- mendaftar sebagai bakal calon;
+- menyimpan draft pendaftaran;
+- upload dokumen;
+- submit pendaftaran;
+- melihat status verifikasi;
+- memperbaiki dokumen;
+- mengirim ulang pendaftaran;
+- melakukan voting jika memenuhi syarat;
+- melihat status bahwa suara telah diberikan.
 
-- NIM
-- Nama
-- Email
-- Program Studi
-- Angkatan
-- Semester
-- Status Mahasiswa
-- Google ID
-- Nomor HP
+---
 
-Constraint utama:
+# 5. Modul dan Fitur
 
-```text
-NIM   : UNIQUE
-Email : UNIQUE
+Modul utama aplikasi:
+
+| Modul | Fungsi |
+|---|---|
+| Authentication | Login menggunakan Google |
+| Student Management | Master data mahasiswa |
+| Student Import | Import CSV/XLSX |
+| Voter Management | Mengelola daftar pemilih |
+| Voter Verification | Pengecekan status pemilih |
+| Election Management | Mengelola periode pemilihan |
+| Candidate Requirements | Mengatur persyaratan bakal calon |
+| Candidate Registration | Form pendaftaran bakal calon |
+| Document Management | Upload dokumen persyaratan |
+| Candidate Verification | Verifikasi oleh panitia |
+| Candidate Establishment | Penetapan calon resmi |
+| Candidate Profile | Publikasi calon |
+| Voting | Proses pemberian suara |
+| Voting Monitor | Monitoring tingkat partisipasi |
+| Result | Penghitungan dan publikasi hasil |
+| Audit Log | Pencatatan aktivitas |
+| Settings | Konfigurasi aplikasi |
+
+---
+
+# 6. Authentication Google
+
+Mahasiswa melakukan login menggunakan akun Google.
+
+```mermaid
+flowchart TD
+    A[Mahasiswa] --> B[Klik Login dengan Google]
+    B --> C[Google OAuth]
+    C --> D[OAuth Callback]
+    D --> E[Ambil Email Google]
+    E --> F[Cari Email pada Database Mahasiswa]
+
+    F --> G{Mahasiswa Ditemukan?}
+
+    G -- Tidak --> H[Akses Ditolak]
+    H --> I[Tampilkan Informasi Hubungi Panitia]
+
+    G -- Ya --> J[Cocokkan Akun]
+    J --> K[Buat Session]
+    K --> L[Dashboard Mahasiswa]
 ```
 
-Status mahasiswa dapat berupa:
+Keberhasilan login Google **tidak otomatis** menjadikan mahasiswa sebagai pemilih.
+
+---
+
+# 7. Master Data Mahasiswa
+
+Data mahasiswa disimpan pada tabel:
+
+```text
+students
+```
+
+Field utama:
+
+- `id`
+- `nim`
+- `name`
+- `email`
+- `study_program`
+- `class_year`
+- `semester`
+- `student_status`
+- `google_id`
+- `phone`
+- `created_at`
+- `updated_at`
+
+Constraint:
+
+```text
+nim   UNIQUE
+email UNIQUE
+```
+
+Status mahasiswa:
 
 ```text
 active
@@ -259,7 +301,7 @@ suspended
 
 # 8. Daftar Pemilih
 
-Status mahasiswa sebagai pemilih disimpan terpisah dari master data mahasiswa.
+Status mahasiswa sebagai pemilih dipisahkan dari master mahasiswa.
 
 Tabel:
 
@@ -267,16 +309,19 @@ Tabel:
 voters
 ```
 
-Data utama:
+Field utama:
 
-- election;
-- mahasiswa;
-- status voter;
-- waktu verifikasi;
-- verifier;
-- catatan.
+- `id`
+- `election_id`
+- `student_id`
+- `voter_status`
+- `verified_at`
+- `verified_by`
+- `notes`
+- `created_at`
+- `updated_at`
 
-Status voter:
+Status:
 
 ```text
 eligible
@@ -290,98 +335,76 @@ Constraint:
 UNIQUE(election_id, student_id)
 ```
 
-Artinya satu mahasiswa hanya memiliki satu status voter dalam satu periode pemilihan.
+Dengan demikian, status pemilih selalu terkait dengan periode pemilihan tertentu.
 
 ---
 
 # 9. Pengecekan Status Pemilih
 
-Mahasiswa dapat mengecek apakah dirinya sudah terdaftar sebagai pemilih melalui:
+Halaman:
 
 ```text
 /cek-pemilih
 ```
 
-Alur:
+```mermaid
+flowchart TD
+    A[Login dengan Google] --> B[Cari Mahasiswa berdasarkan Email]
+    B --> C{Mahasiswa Ditemukan?}
 
-```text
-Login Google
-    ↓
-Cari Mahasiswa
-    ↓
-Cari Voter pada Election
-    ↓
-Status Eligible?
-    ├── Ya
-    │    ↓
-    │  TERDAFTAR SEBAGAI PEMILIH
-    │
-    └── Tidak
-         ↓
-       BELUM TERDAFTAR SEBAGAI PEMILIH
+    C -- Tidak --> D[Data Mahasiswa Tidak Ditemukan]
+
+    C -- Ya --> E[Cari Data Voter pada Election]
+    E --> F{Voter Ditemukan?}
+
+    F -- Tidak --> G[Belum Terdaftar sebagai Pemilih]
+
+    F -- Ya --> H{Status Eligible?}
+
+    H -- Tidak --> I[Tidak Memenuhi Status Pemilih]
+    H -- Ya --> J[Terdaftar sebagai Pemilih]
 ```
 
-Informasi yang dapat ditampilkan:
+Jika terdaftar, tampilkan:
 
 - Nama
 - NIM
+- Email
 - Program Studi
 - Angkatan
 - Semester
-- Email
 - Status Pemilih
 
 ---
 
-# 10. Import Data
+# 10. Election Management
 
-Admin dapat memasukkan data melalui:
-
-- input manual;
-- CSV;
-- XLSX.
-
-Sebelum import sistem melakukan:
-
-1. validasi file;
-2. validasi header;
-3. validasi NIM;
-4. validasi email;
-5. pengecekan data kosong;
-6. pengecekan duplikasi;
-7. pengecekan data existing;
-8. preview sebelum proses import.
-
-Hasil import dapat dikelompokkan menjadi:
+Tabel:
 
 ```text
-Valid
-Invalid
-Duplicate
-Existing
-Updated
-Skipped
-Error
+elections
 ```
 
----
+Field utama:
 
-# 11. Election Management
+- `id`
+- `name`
+- `slug`
+- `description`
+- `registration_start`
+- `registration_end`
+- `verification_start`
+- `verification_end`
+- `candidate_finalization_at`
+- `campaign_start`
+- `campaign_end`
+- `voting_start`
+- `voting_end`
+- `result_publish_at`
+- `status`
+- `created_by`
 
-Setiap periode pemilihan dikelola menggunakan entitas `Election`.
-
-Data utama:
-
-- nama election;
-- deskripsi;
-- periode pendaftaran;
-- periode verifikasi;
-- periode kampanye;
-- periode voting;
-- waktu publikasi hasil;
-- status.
-
-Status dapat berupa:
+Status:
 
 ```text
 draft
@@ -395,59 +418,55 @@ published
 archived
 ```
 
-Validasi waktu dilakukan pada backend.
+Semua validasi periode harus dilakukan pada backend.
 
 ---
 
-# 12. Pendaftaran Bakal Calon
+# 11. Pendaftaran Bakal Calon
 
-Sistem menyediakan modul:
+Pendaftaran bakal calon dilakukan menggunakan form multi-step.
 
-```text
-Pendaftaran Bakal Calon Ketua dan Wakil Ketua
-```
+```mermaid
+flowchart TD
+    A[Login Google] --> B[Validasi Data Mahasiswa]
+    B --> C{Semester 3 sampai 5?}
 
-Alur:
+    C -- Tidak --> D[Tidak Memenuhi Syarat]
+    C -- Ya --> E[Buat Draft Pendaftaran]
 
-```text
-Login
-  ↓
-Validasi Persyaratan
-  ↓
-Buat Draft
-  ↓
-Isi Data Ketua
-  ↓
-Pilih Wakil
-  ↓
-Isi Visi dan Misi
-  ↓
-Isi Program Kerja
-  ↓
-Upload Dokumen
-  ↓
-Review
-  ↓
-Submit
-  ↓
-Verifikasi Panitia
+    E --> F[Isi Data Ketua]
+    F --> G[Pilih Wakil Ketua]
+
+    G --> H{Wakil Memenuhi Syarat?}
+
+    H -- Tidak --> I[Pilih Wakil Lain]
+    I --> G
+
+    H -- Ya --> J[Isi Visi]
+    J --> K[Isi Misi]
+    K --> L[Isi Program Kerja]
+    L --> M[Upload Foto]
+    M --> N[Upload Dokumen Persyaratan]
+    N --> O[Review Pendaftaran]
+    O --> P[Submit]
+    P --> Q[Menunggu Verifikasi Panitia]
 ```
 
 ---
 
-# 13. Persyaratan Ketua dan Wakil
+# 12. Persyaratan Bakal Calon
 
-Ketua dan Wakil wajib memenuhi ketentuan:
+Ketua dan Wakil wajib:
 
 - mahasiswa aktif;
-- terdaftar pada database fakultas;
-- minimal semester 3;
-- maksimal semester 5;
+- terdaftar pada database Fakultas Ilmu Komputer;
+- minimal semester **3**;
+- maksimal semester **5**;
 - tidak berstatus suspended;
-- tidak menjadi bagian dari pasangan lain dalam election yang sama;
-- Ketua dan Wakil bukan mahasiswa yang sama;
-- periode pendaftaran sedang aktif;
-- memenuhi persyaratan administrasi lainnya.
+- tidak terdaftar pada pasangan lain dalam election yang sama;
+- Ketua dan Wakil tidak boleh merupakan mahasiswa yang sama;
+- periode pendaftaran masih aktif;
+- memenuhi dokumen persyaratan yang ditentukan panitia.
 
 Validasi semester:
 
@@ -455,7 +474,7 @@ Validasi semester:
 semester >= 3 AND semester <= 5
 ```
 
-Semester yang valid:
+Semester valid:
 
 ```text
 3
@@ -463,7 +482,7 @@ Semester yang valid:
 5
 ```
 
-Semester yang tidak valid:
+Semester tidak valid:
 
 ```text
 1
@@ -474,11 +493,11 @@ Semester yang tidak valid:
 dan seterusnya
 ```
 
-Semester harus dibaca dari database, bukan dari input frontend.
+Semester harus berasal dari database, bukan input frontend.
 
 ---
 
-# 14. Status Pendaftaran Bakal Calon
+# 13. Verifikasi Bakal Calon
 
 Status pendaftaran:
 
@@ -493,111 +512,28 @@ rejected
 established
 ```
 
-Alur status utama:
+Alur verifikasi:
 
-```text
-draft
-  ↓
-submitted
-  ↓
-under_review
-  ↓
-┌────────────────────┐
-│ revision_required  │
-└─────────┬──────────┘
-          ↓
-     resubmitted
-          ↓
-     under_review
-          ↓
-       verified
-          ↓
-      established
+```mermaid
+flowchart TD
+    A[Submitted] --> B[Under Review]
+
+    B --> C{Dokumen dan Data Valid?}
+
+    C -- Tidak --> D[Revision Required]
+    D --> E[Mahasiswa Melakukan Perbaikan]
+    E --> F[Resubmitted]
+    F --> B
+
+    C -- Ya --> G{Memenuhi Semua Persyaratan?}
+
+    G -- Tidak --> H[Rejected]
+
+    G -- Ya --> I[Verified]
+    I --> J[Siap Ditetapkan sebagai Calon]
 ```
 
-Alternatif:
-
-```text
-under_review
-      ↓
-   rejected
-```
-
----
-
-# 15. Form Pendaftaran Bakal Calon
-
-Form menggunakan konsep multi-step.
-
-## Step 1
-
-Data Ketua:
-
-- Nama
-- NIM
-- Email
-- Program Studi
-- Angkatan
-- Semester
-- Nomor HP
-
-## Step 2
-
-Data Wakil:
-
-- Nama
-- NIM
-- Email
-- Program Studi
-- Angkatan
-- Semester
-- Nomor HP
-
-## Step 3
-
-Visi
-
-## Step 4
-
-Misi
-
-## Step 5
-
-Program Kerja
-
-## Step 6
-
-Foto Pasangan
-
-## Step 7
-
-Dokumen Persyaratan
-
-## Step 8
-
-Review dan Submit
-
-Pendaftaran dapat disimpan sebagai draft sebelum dikirim.
-
----
-
-# 16. Dokumen Persyaratan
-
-Dokumen disimpan melalui modul:
-
-```text
-candidate_registration_documents
-```
-
-Sistem mendukung:
-
-- dokumen wajib;
-- dokumen opsional;
-- batas ukuran;
-- jenis file;
-- validasi MIME;
-- status verifikasi;
-- catatan panitia.
+Panitia dapat melakukan verifikasi per dokumen.
 
 Status dokumen:
 
@@ -610,66 +546,9 @@ revision_required
 
 ---
 
-# 17. Verifikasi Bakal Calon
+# 14. Penetapan Calon
 
-Panitia dapat:
-
-- membuka detail pendaftaran;
-- memeriksa data Ketua;
-- memeriksa data Wakil;
-- memeriksa dokumen;
-- memberikan catatan;
-- meminta revisi;
-- memverifikasi;
-- menolak;
-- menetapkan calon.
-
-Alur:
-
-```text
-Submitted
-    ↓
-Under Review
-    ↓
-Dokumen Lengkap?
-    ├── Tidak
-    │     ↓
-    │ Revision Required
-    │     ↓
-    │ Resubmitted
-    │
-    └── Ya
-          ↓
-       Verified
-```
-
----
-
-# 18. Riwayat Verifikasi
-
-Semua perubahan status disimpan.
-
-Tabel:
-
-```text
-candidate_registration_histories
-```
-
-Informasi minimal:
-
-- status sebelumnya;
-- status baru;
-- catatan;
-- pengguna yang melakukan perubahan;
-- waktu perubahan.
-
-Riwayat tidak boleh dihapus secara sembarangan karena merupakan bagian dari audit proses pemilihan.
-
----
-
-# 19. Penetapan Calon
-
-Hanya bakal calon dengan status:
+Hanya bakal calon berstatus:
 
 ```text
 verified
@@ -677,324 +556,284 @@ verified
 
 yang dapat ditetapkan menjadi calon resmi.
 
-Saat penetapan:
+```mermaid
+flowchart TD
+    A[Registration Verified] --> B[Panitia Menetapkan Calon]
+    B --> C[Database Transaction]
 
-```text
-Verified Registration
-        ↓
-Database Transaction
-        ↓
-Create Candidate
-        ↓
-Registration = Established
-        ↓
-Audit Log
+    C --> D[Buat Data Candidate]
+    D --> E[Registration menjadi Established]
+    E --> F[Catat Audit Log]
+    F --> G[Tentukan Nomor Urut]
+    G --> H[Calon Resmi]
 ```
 
----
-
-# 20. Nomor Urut
-
-Setiap pasangan calon memiliki nomor urut.
-
-Constraint:
+Nomor urut harus unik dalam satu election.
 
 ```text
 UNIQUE(election_id, candidate_number)
 ```
 
-Nomor urut tidak boleh ganda dalam satu election.
-
 ---
 
-# 21. Publikasi Kandidat
+# 15. Publikasi Kandidat
 
-Halaman kandidat menampilkan:
+Halaman:
+
+```text
+/kandidat
+```
+
+Data yang ditampilkan:
 
 - nomor urut;
 - foto;
-- Ketua;
-- Wakil;
+- nama Ketua;
+- nama Wakil;
+- program studi;
 - visi;
 - misi;
 - program kerja.
 
-Urutan tampilan:
+Urutan:
 
 ```text
 candidate_number ASC
 ```
 
-Tampilan kandidat harus netral dan tidak memberikan ranking atau rekomendasi.
+Tampilan harus netral dan tidak memberikan rekomendasi atau ranking.
 
 ---
 
-# 22. Voting
+# 16. Voting
 
-Mahasiswa hanya dapat voting jika:
+Mahasiswa hanya dapat melakukan voting jika:
 
-1. berhasil login;
-2. ditemukan pada database mahasiswa;
-3. terdaftar sebagai voter;
-4. status voter = `eligible`;
+1. sudah login;
+2. terdaftar sebagai mahasiswa;
+3. terdaftar pada daftar pemilih;
+4. status `eligible`;
 5. periode voting sedang aktif;
 6. belum pernah memilih;
-7. kandidat yang dipilih merupakan kandidat aktif pada election tersebut.
+7. kandidat yang dipilih aktif pada election tersebut.
 
----
+Alur voting:
 
-# 23. Alur Voting
+```mermaid
+flowchart TD
+    A[Login Google] --> B[Validasi Mahasiswa]
+    B --> C[Validasi Daftar Pemilih]
 
-```text
-Login Google
-      ↓
-Validasi Mahasiswa
-      ↓
-Validasi Voter
-      ↓
-Election Aktif?
-      ↓
-Sudah Memilih?
-      ├── Ya → Voting Ditolak
-      │
-      └── Tidak
-            ↓
-        Lihat Kandidat
-            ↓
-        Pilih Kandidat
-            ↓
-         Konfirmasi
-            ↓
-        Submit Vote
-            ↓
-    Database Transaction
-        ┌──────┴──────┐
-        ↓             ↓
- Participation      Ballot
-        ↓             ↓
-       COMMIT TRANSACTION
-            ↓
-          Success
+    C --> D{Eligible?}
+
+    D -- Tidak --> E[Voting Ditolak]
+
+    D -- Ya --> F{Voting Sedang Aktif?}
+
+    F -- Tidak --> G[Voting Belum Dibuka atau Sudah Ditutup]
+
+    F -- Ya --> H{Sudah Memilih?}
+
+    H -- Ya --> I[Tampilkan Status Sudah Memilih]
+
+    H -- Tidak --> J[Tampilkan Kandidat]
+    J --> K[Pilih Kandidat]
+    K --> L[Konfirmasi Pilihan]
+    L --> M[Submit Vote]
+
+    M --> N[Database Transaction]
+
+    N --> O[Catat Voting Participation]
+    N --> P[Simpan Anonymous Ballot]
+
+    O --> Q[Commit Transaction]
+    P --> Q
+
+    Q --> R[Suara Berhasil Direkam]
 ```
 
 ---
 
-# 24. Kerahasiaan Suara
+# 17. Kerahasiaan Suara
 
-Sistem harus memisahkan:
+Identitas pemilih harus dipisahkan dari isi suara.
 
-```text
-siapa yang sudah memilih
+```mermaid
+flowchart LR
+    A[Mahasiswa] --> B[Voter]
+    B --> C[Voting Participation]
+    C --> D[Status Sudah Memilih]
+
+    E[Anonymous Ballot] --> F[Candidate]
+
+    C -. Tidak Ada Relasi Langsung .- E
 ```
-
-dengan:
-
-```text
-siapa yang dipilih
-```
-
-Karena itu digunakan dua tabel terpisah.
 
 ## Voting Participation
+
+Tabel:
 
 ```text
 voting_participations
 ```
 
-Digunakan untuk mencatat bahwa seorang voter sudah menggunakan hak pilih.
+Menyimpan:
 
-Contoh:
+- `election_id`
+- `voter_id`
+- `voted_at`
 
-- election_id
-- voter_id
-- voted_at
+Tujuan:
 
-Tidak menyimpan kandidat pilihan.
+> mengetahui bahwa pemilih sudah menggunakan hak pilih.
 
 ---
 
 ## Anonymous Ballot
 
+Tabel:
+
 ```text
 ballots
 ```
 
-Digunakan untuk menyimpan suara.
+Menyimpan:
 
-Contoh:
+- `election_id`
+- `candidate_id`
+- `ballot_uuid`
+- `integrity_hash`
+- `submitted_at`
 
-- election_id
-- candidate_id
-- ballot_uuid
-- integrity_hash
-- submitted_at
-
-Ballot tidak boleh memiliki:
+Ballot **tidak boleh** menyimpan:
 
 ```text
 voter_id
 student_id
-email
 nim
+email
 google_id
-```
-
-Dengan demikian administrator tidak memiliki hubungan langsung:
-
-```text
-Mahasiswa A → memilih Kandidat B
 ```
 
 ---
 
-# 25. Pencegahan Voting Ganda
+# 18. Pencegahan Voting Ganda
 
-Gunakan beberapa lapisan perlindungan:
-
-- server-side validation;
-- database transaction;
-- unique constraint;
-- row lock bila diperlukan;
-- CSRF;
-- idempotency mechanism jika diperlukan.
-
-Constraint:
+Constraint utama:
 
 ```text
 UNIQUE(election_id, voter_id)
 ```
 
+Perlindungan:
+
+- database transaction;
+- unique constraint;
+- server-side validation;
+- CSRF;
+- row locking jika diperlukan;
+- idempotency jika diperlukan.
+
 Sistem harus aman terhadap:
 
 - double click;
-- refresh;
+- browser refresh;
+- multiple tabs;
 - duplicate POST;
-- multiple tab;
+- replay request;
 - concurrent request;
-- replay request.
+- race condition.
 
 ---
 
-# 26. Hasil Pemilihan
+# 19. Hasil Pemilihan
 
-Perhitungan hasil harus berasal dari:
+Hasil dihitung dari:
 
 ```text
 ballots
 ```
 
-Bukan dari tabel partisipasi.
-
-Perhitungan:
+Bukan dari:
 
 ```text
-Jumlah Suara Kandidat
-Total Suara
-Total Pemilih
-Sudah Memilih
-Belum Memilih
-Persentase Kandidat
-Tingkat Partisipasi
+voting_participations
 ```
 
-Formula persentase kandidat:
+Data hasil:
+
+- suara per kandidat;
+- total suara sah;
+- total pemilih;
+- jumlah sudah memilih;
+- jumlah belum memilih;
+- tingkat partisipasi;
+- persentase kandidat.
+
+Persentase kandidat:
 
 ```text
-suara_kandidat / total_suara_sah * 100
+jumlah_suara_kandidat / total_suara_sah * 100
 ```
 
-Formula partisipasi:
+Partisipasi:
 
 ```text
-jumlah_pemilih_yang_memilih / total_pemilih * 100
+jumlah_sudah_memilih / total_pemilih * 100
+```
+
+Alur publikasi:
+
+```mermaid
+flowchart TD
+    A[Voting Ditutup] --> B[Hitung Anonymous Ballot]
+    B --> C[Hitung Suara Per Kandidat]
+    C --> D[Hitung Total Suara]
+    D --> E[Hitung Persentase]
+    E --> F[Hitung Tingkat Partisipasi]
+    F --> G{Waktu Publikasi Tercapai?}
+
+    G -- Tidak --> H[Hasil Belum Ditampilkan]
+    G -- Ya --> I[Publikasikan Hasil]
 ```
 
 ---
 
-# 27. Dashboard Admin
+# 20. Audit Log
 
-Dashboard minimal menampilkan:
+Tabel:
 
-- Total Mahasiswa
-- Total Pemilih
-- Eligible Voters
-- Sudah Memilih
-- Belum Memilih
-- Persentase Partisipasi
-- Jumlah Pendaftaran Bakal Calon
-- Submitted
-- Under Review
-- Revision Required
-- Verified
-- Kandidat Resmi
+```text
+audit_logs
+```
 
-Monitoring tidak boleh membocorkan pilihan individu.
+Aktivitas yang dicatat:
 
----
-
-# 28. Audit Log
-
-Aktivitas administratif penting harus dicatat.
-
-Contoh:
-
-- login admin;
+- login administrator;
 - import mahasiswa;
-- perubahan data mahasiswa;
+- perubahan mahasiswa;
+- import voter;
 - perubahan voter;
 - pembuatan election;
 - perubahan jadwal;
+- perubahan requirements;
 - submit registration;
-- verifikasi registration;
-- revision request;
+- request revision;
 - resubmit;
+- verify;
 - reject;
-- verification;
-- penetapan candidate;
-- nomor urut;
+- establish candidate;
+- penetapan nomor urut;
 - publikasi hasil;
-- perubahan konfigurasi.
+- perubahan setting.
 
-Audit log tidak boleh menyimpan hubungan pemilih dengan kandidat pilihan.
-
----
-
-# 29. Keamanan Sistem
-
-Sistem harus memperhatikan risiko:
-
-- SQL Injection;
-- XSS;
-- CSRF;
-- IDOR;
-- Mass Assignment;
-- Privilege Escalation;
-- Session Hijacking;
-- Session Fixation;
-- Brute Force;
-- Replay Request;
-- Race Condition;
-- Duplicate Vote;
-- File Upload Attack;
-- MIME Spoofing;
-- Unauthorized Access.
-
-Gunakan:
-
-- middleware;
-- policy;
-- gate;
-- Laravel Form Request;
-- server-side validation;
-- database constraint;
-- transaction;
-- authorization.
+Audit log **tidak boleh menyimpan pilihan pemilih**.
 
 ---
 
-# 30. Struktur Database Utama
+# 21. Struktur Database
 
-Minimal terdapat tabel:
+Tabel utama:
 
 ```text
 users
@@ -1013,13 +852,174 @@ audit_logs
 system_settings
 ```
 
+Relasi konseptual:
+
+```mermaid
+flowchart TD
+    A[Students] --> B[Voters]
+    C[Elections] --> B
+
+    A --> D[Candidate Registrations]
+    C --> D
+
+    D --> E[Registration Documents]
+    D --> F[Candidate Programs]
+    D --> G[Registration Histories]
+
+    D --> H[Candidates]
+    C --> H
+
+    B --> I[Voting Participations]
+
+    C --> J[Ballots]
+    H --> J
+
+    K[Users / Admin] --> L[Audit Logs]
+```
+
 ---
 
-# 31. Struktur Folder Dokumentasi
+# 22. Keamanan
 
-Disarankan:
+Sistem harus melindungi terhadap:
+
+- SQL Injection;
+- XSS;
+- CSRF;
+- IDOR;
+- Mass Assignment;
+- Privilege Escalation;
+- Session Hijacking;
+- Session Fixation;
+- Brute Force;
+- Replay Request;
+- Race Condition;
+- Duplicate Vote;
+- File Upload Attack;
+- MIME Spoofing;
+- Unauthorized Direct Object Access;
+- Unauthorized API Access.
+
+Gunakan:
+
+- Middleware
+- Policy
+- Gate
+- Laravel Form Request
+- CSRF Protection
+- Database Constraint
+- Database Transaction
+- Authorization
+- Validation
+- Rate Limiting
+
+---
+
+# 23. Routing
+
+## Public
 
 ```text
+/
+/cek-pemilih
+/kandidat
+/kandidat/{candidate}
+/hasil/{election}
+```
+
+## Authentication
+
+```text
+/login
+/login/google
+/auth/google/callback
+/logout
+```
+
+## Mahasiswa
+
+```text
+/dashboard
+/profil
+```
+
+## Bakal Calon
+
+```text
+/pendaftaran-bakal-calon
+/pendaftaran-bakal-calon/create
+/pendaftaran-bakal-calon/{registration}
+/pendaftaran-bakal-calon/{registration}/edit
+/pendaftaran-bakal-calon/{registration}/dokumen
+/pendaftaran-bakal-calon/{registration}/review
+/pendaftaran-bakal-calon/{registration}/submit
+/pendaftaran-bakal-calon/{registration}/resubmit
+```
+
+## Voting
+
+```text
+/pemilihan
+/pemilihan/{election}
+/vote/{election}
+/vote/{election}/confirm
+/vote/{election}/submit
+/vote/{election}/success
+```
+
+## Admin
+
+```text
+/admin/dashboard
+/admin/mahasiswa
+/admin/mahasiswa/import
+/admin/pemilih
+/admin/pemilih/import
+/admin/elections
+/admin/requirements
+/admin/pendaftaran-bakal-calon
+/admin/kandidat
+/admin/voting-monitor
+/admin/hasil
+/admin/audit-log
+/admin/settings
+```
+
+---
+
+# 24. Struktur Project
+
+Struktur Laravel secara umum:
+
+```text
+app/
+├── Actions/
+├── Http/
+│   ├── Controllers/
+│   ├── Middleware/
+│   └── Requests/
+├── Models/
+├── Policies/
+└── Services/
+
+database/
+├── factories/
+├── migrations/
+└── seeders/
+
+resources/
+├── css/
+├── js/
+└── views/
+
+routes/
+├── web.php
+└── console.php
+
+tests/
+├── Feature/
+└── Unit/
+
 docs/
 ├── architecture.md
 ├── erd.md
@@ -1029,17 +1029,91 @@ docs/
 └── security.md
 ```
 
+Struktur aktual dapat disesuaikan dengan repository existing.
+
 ---
 
-# 32. Environment
+# 25. Instalasi
 
-Konfigurasi environment disimpan pada:
+Clone repository:
 
-```text
-.env
+```bash
+git clone <repository-url>
 ```
 
-Contoh:
+Masuk ke project:
+
+```bash
+cd sistem-pemilihan-mahasiswa
+```
+
+Install dependency PHP:
+
+```bash
+composer install
+```
+
+Install dependency frontend:
+
+```bash
+npm install
+```
+
+Copy environment:
+
+```bash
+cp .env.example .env
+```
+
+Untuk Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Generate application key:
+
+```bash
+php artisan key:generate
+```
+
+Konfigurasi database pada `.env`.
+
+Jalankan migration:
+
+```bash
+php artisan migrate
+```
+
+Jika tersedia seeder:
+
+```bash
+php artisan db:seed
+```
+
+atau:
+
+```bash
+php artisan migrate --seed
+```
+
+Jalankan frontend:
+
+```bash
+npm run dev
+```
+
+Jalankan Laravel:
+
+```bash
+php artisan serve
+```
+
+---
+
+# 26. Environment
+
+Contoh `.env.example`:
 
 ```env
 APP_NAME="Sistem Pemilihan Mahasiswa"
@@ -1059,94 +1133,34 @@ DB_PASSWORD=
 
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
-GOOGLE_REDIRECT_URI=
+GOOGLE_REDIRECT_URI=http://localhost/auth/google/callback
 ```
 
-File `.env` **tidak boleh di-commit ke GitHub**.
-
-Gunakan:
+File berikut **tidak boleh masuk GitHub**:
 
 ```text
-.env.example
+.env
 ```
 
-sebagai template.
+Pastikan `.gitignore` mencakup:
 
----
-
-# 33. Instalasi Development
-
-Clone repository:
-
-```bash
-git clone <repository-url>
-```
-
-Masuk ke directory:
-
-```bash
-cd sistem-pemilihan-mahasiswa
-```
-
-Install PHP dependencies:
-
-```bash
-composer install
-```
-
-Install frontend dependencies:
-
-```bash
-npm install
-```
-
-Buat environment:
-
-```bash
-cp .env.example .env
-```
-
-Generate application key:
-
-```bash
-php artisan key:generate
-```
-
-Konfigurasi database pada `.env`.
-
-Jalankan migration:
-
-```bash
-php artisan migrate
-```
-
-Jika tersedia development seeder:
-
-```bash
-php artisan db:seed
-```
-
-atau:
-
-```bash
-php artisan migrate --seed
-```
-
-Jalankan frontend:
-
-```bash
-npm run dev
-```
-
-Jalankan aplikasi:
-
-```bash
-php artisan serve
+```gitignore
+/vendor
+/node_modules
+/public/build
+/public/hot
+/storage/*.key
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+/.idea
+/.vscode
 ```
 
 ---
 
-# 34. Menjalankan Test
+# 27. Testing
 
 Jalankan:
 
@@ -1154,166 +1168,161 @@ Jalankan:
 php artisan test
 ```
 
-Jika project menggunakan tool tambahan, jalankan sesuai konfigurasi:
+Jika menggunakan Laravel Pint:
 
 ```bash
 ./vendor/bin/pint
 ```
 
-dan static analysis jika tersedia.
+## Test Authentication
 
----
+- Google email terdaftar;
+- Google email tidak terdaftar;
+- inactive student;
+- unauthorized access.
 
-# 35. Strategi Branch Git
+## Test Bakal Calon
 
-Gunakan struktur:
+Valid semester:
 
 ```text
-main
-│
-└── develop
-    │
-    ├── feature/google-auth
-    ├── feature/voter-management
-    ├── feature/candidate-registration
-    ├── feature/candidate-verification
-    ├── feature/voting
-    └── feature/dashboard-results
+3
+4
+5
 ```
 
-## Main
-
-Digunakan untuk versi stabil.
-
-## Develop
-
-Digunakan sebagai branch integrasi development.
-
-## Feature
-
-Digunakan untuk pengembangan masing-masing fitur.
-
----
-
-# 36. Alur Pengembangan Tim
-
-Setiap developer mengikuti alur:
+Tidak valid:
 
 ```text
-develop
-   ↓
-Pull Latest Changes
-   ↓
-Create Feature Branch
-   ↓
-Develop Feature
-   ↓
-Run Test
-   ↓
-Commit
-   ↓
-Push
-   ↓
-Create Pull Request
-   ↓
-Code Review
-   ↓
-Merge to Develop
+1
+2
+6
+7
+8
 ```
 
-Setelah versi pada `develop` stabil:
+Test lain:
+
+- Ketua = Wakil;
+- pasangan sudah terdaftar;
+- dokumen tidak lengkap;
+- save draft;
+- submit;
+- revision;
+- resubmit;
+- verify;
+- reject;
+- establish.
+
+## Test Voting
+
+- eligible voter;
+- non-eligible voter;
+- voting sebelum dibuka;
+- voting sedang aktif;
+- voting setelah ditutup;
+- duplicate vote;
+- double submit;
+- concurrent request;
+- candidate dari election lain;
+- inactive candidate.
+
+## Test Privacy
+
+Pastikan ballot tidak memiliki:
 
 ```text
-develop
-   ↓
-Pull Request
-   ↓
-Review
-   ↓
-main
+voter_id
+student_id
+nim
+email
+google_id
 ```
 
 ---
 
-# 37. Membuat Feature Branch
+# 28. Workflow Pengembangan Tim
 
-Ambil versi terbaru:
+Setiap developer bekerja menggunakan branch fitur.
 
-```bash
-git checkout develop
-git pull origin develop
+```mermaid
+flowchart LR
+    A[Pull Develop Terbaru] --> B[Buat Feature Branch]
+    B --> C[Implementasi Fitur]
+    C --> D[Jalankan Test]
+
+    D --> E{Test Berhasil?}
+
+    E -- Tidak --> C
+    E -- Ya --> F[Commit]
+
+    F --> G[Push ke GitHub]
+    G --> H[Buat Pull Request]
+    H --> I[Code Review]
+
+    I --> J{Disetujui?}
+
+    J -- Tidak --> C
+    J -- Ya --> K[Merge ke Develop]
 ```
 
-Buat branch baru:
+---
 
-```bash
-git checkout -b feature/nama-fitur
+# 29. Branch Strategy
+
+Struktur branch:
+
+```mermaid
+flowchart TD
+    A[main] --> B[develop]
+
+    B --> C[feature/google-auth]
+    B --> D[feature/voter-management]
+    B --> E[feature/candidate-registration]
+    B --> F[feature/candidate-verification]
+    B --> G[feature/voting]
+    B --> H[feature/dashboard-results]
+
+    C --> I[Pull Request]
+    D --> I
+    E --> I
+    F --> I
+    G --> I
+    H --> I
+
+    I --> B
+    B --> J[Release Pull Request]
+    J --> A
 ```
+
+## `main`
+
+Berisi versi stabil.
+
+## `develop`
+
+Branch integrasi development.
+
+## `feature/*`
+
+Branch pengembangan fitur.
 
 Contoh:
 
-```bash
-git checkout -b feature/candidate-registration
-```
-
----
-
-# 38. Commit
-
-Gunakan pesan commit yang jelas.
-
-Contoh:
-
 ```text
-feat: implement Google authentication
-feat: add voter verification
-feat: implement candidate registration
-feat: add candidate verification workflow
-feat: implement anonymous voting
-fix: prevent duplicate voting
-fix: validate candidate semester eligibility
-test: add candidate eligibility tests
-docs: update voting architecture
+feature/google-auth
+feature/voter-management
+feature/candidate-registration
+feature/candidate-verification
+feature/voting
+feature/dashboard-results
 ```
 
 ---
 
-# 39. Push Branch
+# 30. GitHub Issues
 
-```bash
-git push -u origin feature/candidate-registration
-```
-
-Kemudian buat Pull Request menuju:
-
-```text
-develop
-```
-
-Jangan langsung merge feature ke `main`.
-
----
-
-# 40. Pembagian Modul Tim
-
-Contoh pembagian tugas:
-
-| Developer | Modul | Branch |
-|---|---|---|
-| Developer 1 | Authentication | `feature/google-auth` |
-| Developer 2 | Mahasiswa & Pemilih | `feature/voter-management` |
-| Developer 3 | Pendaftaran Bakal Calon | `feature/candidate-registration` |
-| Developer 4 | Verifikasi & Kandidat | `feature/candidate-verification` |
-| Developer 5 | Voting | `feature/voting` |
-| Developer 6 | Dashboard & Hasil | `feature/dashboard-results` |
-
-Pembagian dapat disesuaikan berdasarkan jumlah anggota tim.
-
----
-
-# 41. GitHub Issues
-
-Gunakan GitHub Issues untuk mencatat pekerjaan.
+Gunakan GitHub Issues untuk membagi pekerjaan.
 
 Contoh:
 
@@ -1322,39 +1331,43 @@ Contoh:
 #2 Google Authentication
 #3 Student Management
 #4 Voter Management
-#5 Candidate Registration
-#6 Candidate Verification
-#7 Candidate Management
-#8 Voting Module
-#9 Result Calculation
-#10 Audit Log
-#11 Security Review
-#12 Testing
+#5 Voter Verification
+#6 Election Management
+#7 Candidate Requirements
+#8 Candidate Registration
+#9 Candidate Verification
+#10 Candidate Management
+#11 Voting Module
+#12 Result Calculation
+#13 Audit Log
+#14 Security Review
+#15 Automated Testing
 ```
 
-Branch dapat dikaitkan dengan issue:
+Branch dapat menggunakan nomor issue:
 
 ```text
-feature/5-candidate-registration
+feature/8-candidate-registration
+feature/11-voting
 ```
 
 ---
 
-# 42. Pull Request
+# 31. Pull Request
 
-Setiap Pull Request sebaiknya menjelaskan:
+Setiap Pull Request minimal menjelaskan:
 
 ## Deskripsi
 
 Apa yang dibuat.
 
-## Perubahan
+## Changes
 
-File/modul utama yang berubah.
+File atau modul utama yang berubah.
 
 ## Database
 
-Migration yang ditambahkan.
+Migration yang dibuat.
 
 ## Testing
 
@@ -1362,164 +1375,226 @@ Test yang telah dilakukan.
 
 ## Security
 
-Dampak keamanan.
+Dampak keamanan fitur.
 
 ## Screenshot
 
-Jika terdapat perubahan UI.
+Sertakan jika terdapat perubahan UI.
 
-Contoh:
+Contoh judul:
 
 ```text
-Title:
 feat: implement candidate registration
-
-Description:
-Menambahkan modul pendaftaran bakal calon Ketua dan Wakil Ketua.
-
-Changes:
-- multi-step registration
-- semester validation
-- document upload
-- draft registration
-- submit registration
-
-Validation:
-Ketua dan Wakil hanya semester 3–5.
-
-Tests:
-- semester 2 rejected
-- semester 3 accepted
-- semester 4 accepted
-- semester 5 accepted
-- semester 6 rejected
 ```
 
 ---
 
-# 43. Code Review
+# 32. Code Review
 
-Sebelum merge, reviewer memeriksa:
+Reviewer memeriksa:
 
+- requirement;
 - coding convention;
 - authorization;
 - validation;
+- keamanan;
 - database integrity;
-- security;
 - test;
 - duplicate logic;
 - UI consistency;
-- migration safety.
+- migration.
 
-Untuk fitur kritis seperti voting, review wajib memeriksa:
+Untuk voting, review wajib memperhatikan:
 
+- anonymous ballot;
 - duplicate vote;
 - transaction;
 - race condition;
-- privacy;
-- authorization.
+- authorization;
+- privacy.
 
 ---
 
-# 44. Definition of Done
+# 33. Definition of Done
 
-Sebuah fitur dianggap selesai jika:
+Fitur dianggap selesai jika:
 
 - requirement terpenuhi;
 - code berjalan;
-- validation tersedia;
+- server-side validation tersedia;
 - authorization tersedia;
+- migration aman;
 - automated test tersedia jika relevan;
-- test berhasil;
-- tidak membocorkan data sensitif;
-- documentation diperbarui;
+- seluruh test terkait berhasil;
+- tidak membocorkan informasi sensitif;
+- dokumentasi diperbarui;
 - Pull Request sudah direview;
 - sudah merge ke `develop`.
 
 ---
 
-# 45. Tahapan Pengembangan
+# 34. Roadmap Pengembangan
 
-## Phase 1 — Repository & Project Setup
+```mermaid
+flowchart TD
+    A[Phase 1<br/>Project Setup] --> B[Phase 2<br/>Authentication]
+    B --> C[Phase 3<br/>Master Data Mahasiswa]
+    C --> D[Phase 4<br/>Daftar Pemilih]
+    D --> E[Phase 5<br/>Election Management]
+    E --> F[Phase 6<br/>Pendaftaran Bakal Calon]
+    F --> G[Phase 7<br/>Verifikasi]
+    G --> H[Phase 8<br/>Penetapan Kandidat]
+    H --> I[Phase 9<br/>Voting]
+    I --> J[Phase 10<br/>Result]
+    J --> K[Phase 11<br/>Audit & Security]
+    K --> L[Phase 12<br/>Testing]
+    L --> M[Phase 13<br/>Deployment]
+```
 
-- Laravel setup
-- database
-- environment
-- Git
-- GitHub
-- base UI
+## Phase 1 — Project Setup
+
+- setup Laravel;
+- database;
+- environment;
+- Git;
+- GitHub;
+- base UI.
 
 ## Phase 2 — Authentication
 
-- Google OAuth
-- user session
-- role
-- authorization
+- Google OAuth;
+- session;
+- role;
+- middleware;
+- authorization.
 
-## Phase 3 — Master Data
+## Phase 3 — Master Data Mahasiswa
 
-- students
-- import
-- voters
-- election
+- students;
+- CRUD;
+- import.
 
-## Phase 4 — Pendaftaran Bakal Calon
+## Phase 4 — Daftar Pemilih
 
-- eligibility
-- semester 3–5
-- draft
-- multi-step form
-- upload
-- submit
+- voters;
+- import;
+- cek status pemilih.
 
-## Phase 5 — Verifikasi
+## Phase 5 — Election
 
-- admin review
-- revision
-- resubmit
-- reject
-- verify
+- periode;
+- jadwal;
+- status.
 
-## Phase 6 — Kandidat
+## Phase 6 — Pendaftaran Bakal Calon
 
-- establishment
-- nomor urut
-- profil kandidat
+- eligibility;
+- semester 3–5;
+- draft;
+- multi-step form;
+- upload;
+- submit.
 
-## Phase 7 — Voting
+## Phase 7 — Verifikasi
 
-- eligibility
-- transaction
-- participation
-- anonymous ballot
-- duplicate protection
+- review;
+- revision;
+- resubmit;
+- verify;
+- reject.
 
-## Phase 8 — Results
+## Phase 8 — Kandidat
 
-- counting
-- percentage
-- turnout
-- publication
+- establishment;
+- nomor urut;
+- profil kandidat.
 
-## Phase 9 — Audit & Security
+## Phase 9 — Voting
 
-- audit log
-- authorization review
-- privacy review
-- vulnerability review
+- eligibility;
+- anonymous ballot;
+- participation;
+- transaction;
+- duplicate protection.
 
-## Phase 10 — Testing & Deployment
+## Phase 10 — Result
 
-- feature tests
-- integration tests
-- final review
-- deployment preparation
+- vote count;
+- percentage;
+- turnout;
+- publication.
+
+## Phase 11 — Audit & Security
+
+- audit log;
+- authorization review;
+- privacy review;
+- vulnerability review.
+
+## Phase 12 — Testing
+
+- feature test;
+- integration test;
+- concurrency-oriented test;
+- final regression.
+
+## Phase 13 — Deployment
+
+- production configuration;
+- database;
+- environment;
+- HTTPS;
+- backup;
+- monitoring.
 
 ---
 
-# 46. Prioritas Pengembangan
+# 35. Status Project
 
-Urutan prioritas:
+Gunakan checklist berikut untuk memonitor progress:
+
+```text
+[ ] Project Setup
+[ ] Git & GitHub Setup
+[ ] Base UI
+[ ] Google Authentication
+[ ] Role & Permission
+[ ] Student Management
+[ ] Student Import
+[ ] Voter Management
+[ ] Voter Import
+[ ] Voter Verification
+[ ] Election Management
+[ ] Candidate Requirements
+[ ] Candidate Registration
+[ ] Candidate Eligibility Semester 3-5
+[ ] Candidate Document Upload
+[ ] Candidate Verification
+[ ] Candidate Revision
+[ ] Candidate Resubmission
+[ ] Candidate Rejection
+[ ] Candidate Establishment
+[ ] Candidate Number
+[ ] Candidate Public Profile
+[ ] Voting
+[ ] Anonymous Ballot
+[ ] Voting Participation
+[ ] Duplicate Vote Protection
+[ ] Voting Monitor
+[ ] Result Calculation
+[ ] Result Publication
+[ ] Audit Log
+[ ] Security Review
+[ ] Automated Testing
+[ ] Documentation
+[ ] Deployment
+```
+
+---
+
+# 36. Prioritas Sistem
+
+Urutan prioritas pengembangan:
 
 ```text
 1. Integritas Pemilihan
@@ -1536,117 +1611,68 @@ Urutan prioritas:
 12. Visual Design
 ```
 
-Keamanan dan integritas tidak boleh dikorbankan hanya untuk mempercepat implementasi UI.
-
 ---
 
-# 47. Roadmap Ringkas
-
-```text
-Project Setup
-    ↓
-Authentication
-    ↓
-Data Mahasiswa
-    ↓
-Daftar Pemilih
-    ↓
-Election
-    ↓
-Pendaftaran Bakal Calon
-    ↓
-Verifikasi
-    ↓
-Penetapan Kandidat
-    ↓
-Voting
-    ↓
-Result
-    ↓
-Audit
-    ↓
-Security Review
-    ↓
-Testing
-    ↓
-Deployment
-```
-
----
-
-# 48. Aturan Penting
+# 37. Aturan Penting untuk Developer
 
 Developer tidak diperbolehkan:
 
-- commit `.env`;
-- commit credential;
-- menyimpan Google Client Secret dalam source code;
-- membuat ballot memiliki `voter_id`;
+- commit file `.env`;
+- commit password database;
+- commit `GOOGLE_CLIENT_SECRET`;
+- menyimpan OAuth token pada source code;
+- membuat `ballots.voter_id`;
 - menyimpan pilihan kandidat pada tabel voter;
-- membuat candidate dari pendaftaran yang belum verified;
+- membuat candidate sebelum registration verified;
 - mempercayai semester dari frontend;
-- menghapus audit history;
+- menghapus audit history tanpa alasan;
 - bypass authorization;
-- langsung push fitur ke `main`;
-- merge Pull Request tanpa review untuk modul kritis.
+- mengubah hasil voting secara manual;
+- push langsung ke `main`;
+- merge fitur kritis tanpa review;
+- mengubah automated test hanya agar implementasi yang salah menjadi pass.
 
 ---
 
-# 49. Status Project
+# 38. Ringkasan Arsitektur Sistem
 
-Project dikembangkan secara bertahap.
+```mermaid
+flowchart LR
+    A[Mahasiswa] --> B[Web Application]
+    C[Admin / Panitia] --> B
 
-Checklist utama:
+    B --> D[Authentication]
+    B --> E[Student & Voter]
+    B --> F[Candidate Registration]
+    B --> G[Voting]
+    B --> H[Results]
 
-```text
-[ ] Project Setup
-[ ] Google Authentication
-[ ] Student Management
-[ ] Student Import
-[ ] Voter Management
-[ ] Voter Verification
-[ ] Election Management
-[ ] Candidate Requirements
-[ ] Candidate Registration
-[ ] Candidate Document Upload
-[ ] Candidate Verification
-[ ] Candidate Revision
-[ ] Candidate Establishment
-[ ] Candidate Number
-[ ] Candidate Public Profile
-[ ] Voting
-[ ] Duplicate Vote Protection
-[ ] Anonymous Ballot
-[ ] Voting Monitor
-[ ] Result Calculation
-[ ] Result Publication
-[ ] Audit Log
-[ ] Security Review
-[ ] Automated Testing
-[ ] Documentation
-[ ] Deployment
+    D --> I[(Database)]
+    E --> I
+    F --> I
+    G --> I
+    H --> I
+
+    B --> J[Google OAuth]
+
+    G --> K[Voting Participation]
+    G --> L[Anonymous Ballot]
+
+    K -. Identitas Tidak Dihubungkan Langsung .- L
 ```
 
 ---
 
-# 50. Kesimpulan
+# 39. Kesimpulan
 
-Sistem Informasi Pemilihan Mahasiswa dikembangkan sebagai platform yang menangani proses pemilihan mulai dari validasi mahasiswa sampai publikasi hasil.
+Sistem Informasi Pemilihan Mahasiswa dikembangkan untuk menangani proses pemilihan secara terstruktur mulai dari:
 
-Prinsip utama sistem adalah:
-
-```text
-Pemilih Valid
-+
-Bakal Calon Valid
-+
-Voting Aman
-+
-Suara Rahasia
-+
-Audit Terjaga
-+
-Proses Terstruktur
+```mermaid
+flowchart LR
+    A[Pemilih Valid] --> B[Bakal Calon Valid]
+    B --> C[Calon Resmi]
+    C --> D[Voting Aman]
+    D --> E[Suara Rahasia]
+    E --> F[Hasil Terhitung]
+    F --> G[Audit Terjaga]
 ```
-
-Dengan penggunaan GitHub, feature branch, Pull Request, code review, testing, dan dokumentasi yang konsisten, project dapat dikembangkan secara kolaboratif oleh beberapa anggota tim tanpa mengorbankan kualitas maupun keamanan sistem.
