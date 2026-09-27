@@ -105,8 +105,8 @@ return new class extends Migration
         });
         Schema::create('candidate_registration_documents', function (Blueprint $t) {
             $t->id();
-            $t->foreignId('candidate_registration_id')->constrained()->restrictOnDelete();
-            $t->foreignId('requirement_id')->constrained('candidate_requirements')->restrictOnDelete();
+            $t->foreignId('candidate_registration_id')->constrained('candidate_registrations', indexName: 'crd_candidate_reg_id_foreign')->restrictOnDelete();
+            $t->foreignId('requirement_id')->constrained('candidate_requirements', indexName: 'crd_requirement_id_foreign')->restrictOnDelete();
             $t->string('document_type', 30)->default('document');
             $t->string('file_path');
             $t->string('original_filename');
@@ -131,7 +131,7 @@ return new class extends Migration
         });
         Schema::create('candidate_registration_histories', function (Blueprint $t) {
             $t->id();
-            $t->foreignId('candidate_registration_id')->constrained()->restrictOnDelete();
+            $t->foreignId('candidate_registration_id')->constrained('candidate_registrations', indexName: 'crh_candidate_reg_id_foreign')->restrictOnDelete();
             $t->string('status_from', 30)->nullable();
             $t->string('status_to', 30);
             $t->text('notes')->nullable();
@@ -140,7 +140,7 @@ return new class extends Migration
         });
         Schema::create('candidate_programs', function (Blueprint $t) {
             $t->id();
-            $t->foreignId('candidate_registration_id')->constrained()->restrictOnDelete();
+            $t->foreignId('candidate_registration_id')->constrained('candidate_registrations', indexName: 'cp_candidate_reg_id_foreign')->restrictOnDelete();
             $t->string('title');
             $t->text('description')->nullable();
             $t->unsignedSmallInteger('sort_order')->default(0);
