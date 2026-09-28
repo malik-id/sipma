@@ -31,3 +31,13 @@ Thumbs.db
 /.phpunit.cache/
 /storage/app/private/*
 !/storage/app/private/.gitignore
+
+# AI & Assistant tooling
+/.claude
+/.agents
+/.factory
+/.grok
+/.mcp.json
+/opencode.json
+/boost.json
+
