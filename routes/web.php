@@ -28,8 +28,23 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 // ─── Mahasiswa ────────────────────────────────────────────────────────────────
+use App\Http\Controllers\Student\CandidateRegistrationController;
+
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
+
+    // Pendaftaran Bakal Calon
+    Route::prefix('pendaftaran-bakal-calon')->name('registration.')->group(function () {
+        Route::get('/', [CandidateRegistrationController::class, 'index'])->name('index');
+        Route::get('/buat', [CandidateRegistrationController::class, 'create'])->name('create');
+        Route::post('/', [CandidateRegistrationController::class, 'store'])->name('store');
+        Route::get('/{registration}', [CandidateRegistrationController::class, 'show'])->name('show');
+        Route::get('/{registration}/edit', [CandidateRegistrationController::class, 'edit'])->name('edit');
+        Route::put('/{registration}', [CandidateRegistrationController::class, 'update'])->name('update');
+        Route::post('/{registration}/submit', [CandidateRegistrationController::class, 'submit'])->name('submit');
+        Route::post('/{registration}/resubmit', [CandidateRegistrationController::class, 'resubmit'])->name('resubmit');
+        Route::post('/{registration}/dokumen/{requirement}', [CandidateRegistrationController::class, 'uploadDocument'])->name('upload-document');
+    });
 });
 
 // ─── Admin & Super Admin ──────────────────────────────────────────────────────
