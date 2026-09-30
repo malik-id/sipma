@@ -9,6 +9,5 @@ class CandidateProgram extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['candidate_registration_id','title','description','sort_order'];
+    protected $fillable = ['candidate_registration_id', 'title', 'description', 'sort_order'];
 }
-

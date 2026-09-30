@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\ActiveAccount;
+use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,11 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [\App\Http\Middleware\SecurityHeaders::class, \App\Http\Middleware\ActiveAccount::class]);
-        $middleware->alias(['active' => \App\Http\Middleware\ActiveAccount::class]);
+        $middleware->web(append: [SecurityHeaders::class, ActiveAccount::class]);
+        $middleware->alias(['active' => ActiveAccount::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->dontFlash(['password','password_confirmation','current_password','candidate_id','code','state']);
+        $exceptions->dontFlash(['password', 'password_confirmation', 'current_password', 'candidate_id', 'code', 'state']);
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );

@@ -49,9 +49,9 @@
             <div>
                 <div class="text-xs font-semibold uppercase tracking-wider text-slate-400">Periode Pemilihan</div>
                 <div class="text-3xl font-extrabold text-indigo-600 mt-1">{{ number_format($totalElections) }}</div>
-                <span class="text-xs text-slate-400 mt-2 inline-block">
-                    Tersedia di sistem
-                </span>
+                <a href="{{ route('admin.elections.index') }}" class="text-xs font-medium text-indigo-600 hover:text-indigo-700 mt-2 inline-block">
+                    Kelola Periode →
+                </a>
             </div>
             <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

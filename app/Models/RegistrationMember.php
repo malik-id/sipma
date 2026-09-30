@@ -10,8 +10,16 @@ class RegistrationMember extends Model
     use HasFactory;
 
     public $timestamps = false;
-    protected $fillable = ['election_id','candidate_registration_id','student_id','position'];
-    public function student() { return $this->belongsTo(Student::class); }
-    public function registration() { return $this->belongsTo(CandidateRegistration::class, 'candidate_registration_id'); }
-}
 
+    protected $fillable = ['election_id', 'candidate_registration_id', 'student_id', 'position'];
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
+
+    public function registration()
+    {
+        return $this->belongsTo(CandidateRegistration::class, 'candidate_registration_id');
+    }
+}

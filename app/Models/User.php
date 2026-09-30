@@ -31,9 +31,21 @@ class User extends Authenticatable
         ];
     }
 
-    public function student() { return $this->belongsTo(Student::class); }
-    public function assignedRole() { return $this->belongsTo(Role::class, 'role', 'name'); }
-    public function isAdmin(): bool { return in_array($this->role, ['admin', 'super_admin'], true); }
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
+
+    public function assignedRole()
+    {
+        return $this->belongsTo(Role::class, 'role', 'name');
+    }
+
+    public function isAdmin(): bool
+    {
+        return in_array($this->role, ['admin', 'super_admin'], true);
+    }
+
     public function hasPermission(string $permission): bool
     {
         return $this->active && ($this->role === 'super_admin' || ($this->role === 'admin' && in_array($permission, $this->assignedRole?->permissions ?? [], true)));

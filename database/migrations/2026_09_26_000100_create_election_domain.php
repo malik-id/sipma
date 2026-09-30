@@ -36,10 +36,10 @@ return new class extends Migration
             $t->string('name');
             $t->string('slug')->unique();
             $t->text('description')->nullable();
-            foreach (['registration_start','registration_end','verification_start','verification_end','voting_start','voting_end'] as $column) {
+            foreach (['registration_start', 'registration_end', 'verification_start', 'verification_end', 'voting_start', 'voting_end'] as $column) {
                 $t->dateTime($column);
             }
-            foreach (['candidate_finalization_at','campaign_start','campaign_end','result_publish_at'] as $column) {
+            foreach (['candidate_finalization_at', 'campaign_start', 'campaign_end', 'result_publish_at'] as $column) {
                 $t->dateTime($column)->nullable();
             }
             $t->string('status', 30)->default('draft')->index();
@@ -55,9 +55,9 @@ return new class extends Migration
             $t->foreignId('verified_by')->nullable()->constrained('users')->restrictOnDelete();
             $t->text('notes')->nullable();
             $t->timestamps();
-            $t->unique(['election_id','student_id']);
-            $t->unique(['id','election_id']);
-            $t->index(['election_id','voter_status']);
+            $t->unique(['election_id', 'student_id']);
+            $t->unique(['id', 'election_id']);
+            $t->index(['election_id', 'voter_status']);
         });
         Schema::create('candidate_requirements', function (Blueprint $t) {
             $t->id();
@@ -84,7 +84,7 @@ return new class extends Migration
             $t->json('mission')->nullable();
             $t->string('photo_path')->nullable();
             $t->string('status', 30)->default('draft');
-            foreach (['submitted_at','resubmitted_at','verified_at','established_at','revision_deadline'] as $column) {
+            foreach (['submitted_at', 'resubmitted_at', 'verified_at', 'established_at', 'revision_deadline'] as $column) {
                 $t->dateTime($column)->nullable();
             }
             $t->foreignId('verified_by')->nullable()->constrained('users')->restrictOnDelete();
@@ -92,7 +92,7 @@ return new class extends Migration
             $t->text('rejection_reason')->nullable();
             $t->text('revision_notes')->nullable();
             $t->timestamps();
-            $t->index(['election_id','status']);
+            $t->index(['election_id', 'status']);
         });
         Schema::create('registration_members', function (Blueprint $t) {
             $t->id();
@@ -100,8 +100,8 @@ return new class extends Migration
             $t->foreignId('candidate_registration_id')->constrained()->restrictOnDelete();
             $t->foreignId('student_id')->constrained()->restrictOnDelete();
             $t->string('position', 20);
-            $t->unique(['election_id','student_id']);
-            $t->unique(['candidate_registration_id','position'], 'members_registration_position_unique');
+            $t->unique(['election_id', 'student_id']);
+            $t->unique(['candidate_registration_id', 'position'], 'members_registration_position_unique');
         });
         Schema::create('candidate_registration_documents', function (Blueprint $t) {
             $t->id();
@@ -119,7 +119,7 @@ return new class extends Migration
             $t->foreignId('verified_by')->nullable()->constrained('users')->restrictOnDelete();
             $t->dateTime('verified_at')->nullable();
             $t->timestamps();
-            $t->unique(['candidate_registration_id','requirement_id','version'], 'registration_requirement_version_unique');
+            $t->unique(['candidate_registration_id', 'requirement_id', 'version'], 'registration_requirement_version_unique');
         });
         Schema::create('requirement_answers', function (Blueprint $t) {
             $t->id();
@@ -127,7 +127,7 @@ return new class extends Migration
             $t->foreignId('requirement_id')->constrained('candidate_requirements')->restrictOnDelete();
             $t->text('value');
             $t->timestamps();
-            $t->unique(['candidate_registration_id','requirement_id'], 'registration_requirement_answer_unique');
+            $t->unique(['candidate_registration_id', 'requirement_id'], 'registration_requirement_answer_unique');
         });
         Schema::create('candidate_registration_histories', function (Blueprint $t) {
             $t->id();
@@ -159,8 +159,8 @@ return new class extends Migration
             $t->string('status', 20)->default('active');
             $t->dateTime('established_at');
             $t->timestamps();
-            $t->unique(['election_id','candidate_number']);
-            $t->unique(['id','election_id']);
+            $t->unique(['election_id', 'candidate_number']);
+            $t->unique(['id', 'election_id']);
         });
         Schema::create('voting_participations', function (Blueprint $t) {
             $t->id();
@@ -168,8 +168,8 @@ return new class extends Migration
             $t->unsignedBigInteger('voter_id');
             $t->dateTime('voted_at');
             $t->dateTime('created_at');
-            $t->unique(['election_id','voter_id']);
-            $t->foreign(['voter_id','election_id'])->references(['id','election_id'])->on('voters')->restrictOnDelete();
+            $t->unique(['election_id', 'voter_id']);
+            $t->foreign(['voter_id', 'election_id'])->references(['id', 'election_id'])->on('voters')->restrictOnDelete();
         });
         Schema::create('ballots', function (Blueprint $t) {
             $t->uuid('id')->primary();
@@ -179,8 +179,8 @@ return new class extends Migration
             $t->string('integrity_hash', 64)->nullable();
             $t->dateTime('submitted_at');
             $t->dateTime('created_at');
-            $t->foreign(['candidate_id','election_id'])->references(['id','election_id'])->on('candidates')->restrictOnDelete();
-            $t->index(['election_id','candidate_id']);
+            $t->foreign(['candidate_id', 'election_id'])->references(['id', 'election_id'])->on('candidates')->restrictOnDelete();
+            $t->index(['election_id', 'candidate_id']);
         });
         Schema::create('audit_logs', function (Blueprint $t) {
             $t->id();
@@ -224,12 +224,12 @@ return new class extends Migration
 
     public function down(): void
     {
-        foreach (['import_batches','notifications','system_settings','audit_logs','ballots','voting_participations','candidates','candidate_programs','candidate_registration_histories','requirement_answers','candidate_registration_documents','registration_members','candidate_registrations','candidate_requirements','voters','elections'] as $table) {
+        foreach (['import_batches', 'notifications', 'system_settings', 'audit_logs', 'ballots', 'voting_participations', 'candidates', 'candidate_programs', 'candidate_registration_histories', 'requirement_answers', 'candidate_registration_documents', 'registration_members', 'candidate_registrations', 'candidate_requirements', 'voters', 'elections'] as $table) {
             Schema::dropIfExists($table);
         }
         Schema::table('users', function (Blueprint $t) {
             $t->dropConstrainedForeignId('student_id');
-            $t->dropColumn(['role','active']);
+            $t->dropColumn(['role', 'active']);
         });
         Schema::dropIfExists('students');
         Schema::dropIfExists('roles');

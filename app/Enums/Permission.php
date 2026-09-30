@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Enums;
+
 enum Permission: string
 {
     case Students = 'manage-students';

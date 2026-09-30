@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\Admin\ElectionController;
+use App\Http\Controllers\Admin\ElectionRequirementController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\VoterController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PublicVoterCheckController;
+use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Models\Election;
 use App\Models\Student;
 use App\Models\Voter;
@@ -26,7 +29,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 
 // ─── Mahasiswa ────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'active'])->group(function () {
-    Route::get('/dashboard', fn () => view('student.dashboard'))->name('dashboard');
+    Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
 });
 
 // ─── Admin & Super Admin ──────────────────────────────────────────────────────
@@ -35,8 +38,9 @@ Route::middleware(['auth', 'active'])->prefix('admin')->name('admin.')->group(fu
         $totalStudents = Student::count();
         $totalVoters = Voter::where('voter_status', 'eligible')->count();
         $totalElections = Election::count();
+        $activeElections = Election::latest()->take(5)->get();
 
-        return view('admin.dashboard', compact('totalStudents', 'totalVoters', 'totalElections'));
+        return view('admin.dashboard', compact('totalStudents', 'totalVoters', 'totalElections', 'activeElections'));
     })->name('dashboard');
 
     // Mahasiswa
@@ -48,4 +52,12 @@ Route::middleware(['auth', 'active'])->prefix('admin')->name('admin.')->group(fu
     Route::post('voters/generate', [VoterController::class, 'generate'])->name('voters.generate');
     Route::patch('voters/{voter}/status', [VoterController::class, 'updateStatus'])->name('voters.update-status');
     Route::delete('voters/{voter}', [VoterController::class, 'destroy'])->name('voters.destroy');
+
+    // Periode Pemilihan
+    Route::patch('elections/{election}/status', [ElectionController::class, 'updateStatus'])->name('elections.update-status');
+    Route::resource('elections', ElectionController::class);
+
+    // Syarat Berkas Calon
+    Route::patch('elections/{election}/requirements/{requirement}/toggle', [ElectionRequirementController::class, 'toggle'])->name('elections.requirements.toggle');
+    Route::resource('elections.requirements', ElectionRequirementController::class)->except(['show']);
 });

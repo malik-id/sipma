@@ -9,7 +9,10 @@ class RequirementAnswer extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['candidate_registration_id','requirement_id','value'];
-    public function requirement() { return $this->belongsTo(CandidateRequirement::class, 'requirement_id'); }
-}
+    protected $fillable = ['candidate_registration_id', 'requirement_id', 'value'];
 
+    public function requirement()
+    {
+        return $this->belongsTo(CandidateRequirement::class, 'requirement_id');
+    }
+}
