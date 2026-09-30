@@ -54,7 +54,7 @@ class AuthController extends Controller
 
     public function admin(AdminLoginRequest $request, RecordAudit $audit)
     {
-        $user = User::where('email', $request->validated('email'))->whereIn('role', ['admin', 'super_admin'])->where('active', true)->first();
+        $user = User::where('email', $request->validated('email'))->whereIn('role', ['admin', 'super_admin', 'dosen_pendamping'])->where('active', true)->first();
         $valid = Hash::check($request->validated('password'), $user?->password ?? '$2y$12$9PHcy.MkfSycdjkEHH7j1.V0wvP4OW0khvuEtgcKwPLU.jYDjfxCK');
         if (! $user || ! $valid) {
             throw ValidationException::withMessages(['email' => 'Email atau kata sandi tidak sesuai.']);

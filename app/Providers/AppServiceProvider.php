@@ -29,6 +29,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::define('admin', fn (User $user) => $user->active && $user->isAdmin());
         Gate::define('super-admin', fn (User $user) => $user->active && $user->role === 'super_admin');
+        Gate::define('supervisor', fn (User $user) => $user->active && $user->isSupervisor());
+        Gate::define('access-admin', fn (User $user) => $user->active && $user->canAccessAdminPanel());
         Gate::define('student', fn (User $user) => $user->active && $user->role === 'student' && $user->student?->isActive());
         foreach (Permission::cases() as $permission) {
             Gate::define($permission->value, fn (User $user) => $user->hasPermission($permission->value));

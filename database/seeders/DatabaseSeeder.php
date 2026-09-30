@@ -28,6 +28,18 @@ class DatabaseSeeder extends Seeder
             ['permissions' => $adminPermissions]
         );
 
+        // Supervisor / Dosen Pendamping permissions (view-only: monitor, results, audit)
+        $supervisorPermissions = [
+            Permission::Monitor->value,
+            Permission::Results->value,
+            Permission::Audit->value,
+        ];
+
+        Role::updateOrCreate(
+            ['name' => 'dosen_pendamping'],
+            ['permissions' => $supervisorPermissions]
+        );
+
         // 2. Akun Super Admin default
         User::updateOrCreate(
             ['email' => 'admin@himakom.ac.id'],
@@ -35,6 +47,18 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Super Administrator',
                 'password' => Hash::make('password123'),
                 'role' => 'super_admin',
+                'active' => true,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        // 3. Akun Dosen Pendamping default
+        User::updateOrCreate(
+            ['email' => 'dosen@himakom.ac.id'],
+            [
+                'name' => 'Dosen Pendamping (Pengawas)',
+                'password' => Hash::make('dosen123'),
+                'role' => 'dosen_pendamping',
                 'active' => true,
                 'email_verified_at' => now(),
             ]

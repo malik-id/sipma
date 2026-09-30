@@ -32,7 +32,7 @@
                 <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                 </svg>
-                Import CSV
+                Import Excel / CSV
             </button>
 
             {{-- Tambah Mahasiswa Manual --}}
@@ -139,11 +139,11 @@
         @endif
     </div>
 
-    {{-- Modal Import CSV --}}
+    {{-- Modal Import CSV / Excel --}}
     <div id="modal-import" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-6">
             <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
-                <h3 class="text-base font-semibold text-slate-900">Import Data Mahasiswa via CSV</h3>
+                <h3 class="text-base font-semibold text-slate-900">Import Data Mahasiswa (Excel / CSV)</h3>
                 <button type="button" onclick="document.getElementById('modal-import').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -154,11 +154,11 @@
             <form method="POST" action="{{ route('admin.students.import') }}" enctype="multipart/form-data" class="space-y-4">
                 @csrf
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Pilih File CSV</label>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Pilih File Excel / CSV (.xlsx, .xls, .csv)</label>
                     <input
                         type="file"
                         name="file"
-                        accept=".csv,.txt"
+                        accept=".xlsx,.xls,.csv,.txt"
                         required
                         class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-slate-200 rounded-lg p-2"
                     />

@@ -45,13 +45,17 @@
                        class="px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
                         Cek DPT
                     </a>
+                    <a href="{{ route('student.profile') }}"
+                       class="px-3 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('student.profile') ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
+                        Profil
+                    </a>
                 </nav>
 
                 <div class="flex items-center gap-3">
-                    <div class="text-right hidden sm:block">
+                    <a href="{{ route('student.profile') }}" class="text-right hidden sm:block hover:opacity-75 transition">
                         <div class="text-xs font-semibold text-slate-800">{{ auth()->user()->name }}</div>
                         <div class="text-xs text-slate-400">{{ auth()->user()->student?->nim }}</div>
-                    </div>
+                    </a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="p-2 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-rose-50 transition" title="Keluar">
@@ -61,6 +65,28 @@
                         </button>
                     </form>
                 </div>
+            </div>
+
+            {{-- Mobile Nav Scrollable Bar --}}
+            <div class="sm:hidden flex items-center gap-1 px-4 py-2 border-t border-slate-100 overflow-x-auto text-xs bg-slate-50/50">
+                <a href="{{ route('dashboard') }}" class="px-2.5 py-1.5 rounded-md whitespace-nowrap {{ request()->routeIs('dashboard') ? 'bg-blue-600 text-white font-bold' : 'text-slate-600 hover:bg-slate-200' }}">
+                    Dashboard
+                </a>
+                <a href="{{ route('student.voting.index') }}" class="px-2.5 py-1.5 rounded-md whitespace-nowrap {{ request()->routeIs('student.voting.*') ? 'bg-blue-600 text-white font-bold' : 'text-slate-600 hover:bg-slate-200' }}">
+                    Bilik Suara
+                </a>
+                <a href="{{ route('registration.index') }}" class="px-2.5 py-1.5 rounded-md whitespace-nowrap {{ request()->routeIs('registration.*') ? 'bg-blue-600 text-white font-bold' : 'text-slate-600 hover:bg-slate-200' }}">
+                    Pendaftaran Calon
+                </a>
+                <a href="{{ route('public.candidates.index') }}" class="px-2.5 py-1.5 rounded-md whitespace-nowrap {{ request()->routeIs('public.candidates.*') ? 'bg-blue-600 text-white font-bold' : 'text-slate-600 hover:bg-slate-200' }}">
+                    Kandidat
+                </a>
+                <a href="{{ route('public.results.index') }}" class="px-2.5 py-1.5 rounded-md whitespace-nowrap {{ request()->routeIs('public.results.*') ? 'bg-blue-600 text-white font-bold' : 'text-slate-600 hover:bg-slate-200' }}">
+                    Hasil
+                </a>
+                <a href="{{ route('student.profile') }}" class="px-2.5 py-1.5 rounded-md whitespace-nowrap {{ request()->routeIs('student.profile') ? 'bg-blue-600 text-white font-bold' : 'text-slate-600 hover:bg-slate-200' }}">
+                    Profil
+                </a>
             </div>
         </header>
 

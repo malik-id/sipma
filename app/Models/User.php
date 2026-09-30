@@ -46,8 +46,30 @@ class User extends Authenticatable
         return in_array($this->role, ['admin', 'super_admin'], true);
     }
 
+    public function isSupervisor(): bool
+    {
+        return $this->role === 'dosen_pendamping';
+    }
+
+    public function canAccessAdminPanel(): bool
+    {
+        return in_array($this->role, ['admin', 'super_admin', 'dosen_pendamping'], true);
+    }
+
     public function hasPermission(string $permission): bool
     {
-        return $this->active && ($this->role === 'super_admin' || ($this->role === 'admin' && in_array($permission, $this->assignedRole?->permissions ?? [], true)));
+        if (! $this->active) {
+            return false;
+        }
+
+        if ($this->role === 'super_admin') {
+            return true;
+        }
+
+        if (in_array($this->role, ['admin', 'dosen_pendamping'], true)) {
+            return in_array($permission, $this->assignedRole?->permissions ?? [], true);
+        }
+
+        return false;
     }
 }

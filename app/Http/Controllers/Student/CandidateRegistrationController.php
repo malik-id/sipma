@@ -23,13 +23,15 @@ class CandidateRegistrationController extends Controller
     {
         $student = auth()->user()->student;
 
-        $registrations = CandidateRegistration::where(function ($q) use ($student) {
-            $q->where('chairman_student_id', $student->id)
-                ->orWhere('vice_chairman_student_id', $student->id);
-        })
-            ->with(['election', 'chairman', 'viceChairman'])
-            ->latest()
-            ->get();
+        $registrations = $student
+            ? CandidateRegistration::where(function ($q) use ($student) {
+                $q->where('chairman_student_id', $student->id)
+                    ->orWhere('vice_chairman_student_id', $student->id);
+            })
+                ->with(['election', 'chairman', 'viceChairman'])
+                ->latest()
+                ->get()
+            : collect();
 
         $openElection = Election::where('status', ElectionStatus::Registration)
             ->where('registration_start', '<=', now())

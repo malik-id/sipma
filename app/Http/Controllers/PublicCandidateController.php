@@ -33,4 +33,16 @@ class PublicCandidateController extends Controller
 
         return view('public.candidates.index', compact('elections', 'activeElection', 'candidates'));
     }
+
+    public function show(Candidate $candidate): View
+    {
+        $candidate->load(['chairman', 'viceChairman', 'registration.programs', 'election']);
+
+        abort_unless(
+            $candidate->status === 'active' && $candidate->candidate_number !== null,
+            404
+        );
+
+        return view('public.candidates.show', compact('candidate'));
+    }
 }

@@ -205,7 +205,7 @@
             {{-- 6. Publikasi Hasil --}}
             @if ($election->result_publish_at)
                 <div class="relative">
-                    <span class="absolute -left-[31px] top-0.5 w-4 h-4 rounded-full border-2 border-white {{ now()->gte($election->result_publish_at) ? 'bg-blue-500' : 'bg-slate-300') }}"></span>
+                    <span class="absolute -left-[31px] top-0.5 w-4 h-4 rounded-full border-2 border-white {{ now()->gte($election->result_publish_at) ? 'bg-blue-500' : 'bg-slate-300' }}"></span>
                     <div class="flex items-center justify-between flex-wrap gap-2">
                         <h4 class="text-sm font-bold text-slate-900">6. Publikasi Hasil & Rekapitulasi Suara</h4>
                         <span class="text-xs font-mono font-medium text-slate-600 bg-slate-100 px-2.5 py-1 rounded">

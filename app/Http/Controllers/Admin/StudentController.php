@@ -8,13 +8,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class StudentController extends Controller
 {
     public function index(Request $request): View
     {
+        Gate::authorize('manage-voters');
+
         $query = Student::query();
 
         if ($search = $request->input('search')) {
@@ -116,30 +120,53 @@ class StudentController extends Controller
     public function import(Request $request, RecordAudit $audit): RedirectResponse
     {
         $request->validate([
-            'file' => ['required', 'file', 'mimes:csv,txt', 'max:5120'],
+            'file' => ['required', 'file', 'mimes:csv,txt,xlsx,xls', 'max:10240'],
         ]);
 
         $file = $request->file('file');
-        $handle = fopen($file->getRealPath(), 'r');
-        if (! $handle) {
-            return back()->withErrors(['file' => 'Gagal membaca berkas CSV.']);
-        }
+        $extension = strtolower($file->getClientOriginalExtension());
 
-        $header = fgetcsv($handle, 1000, ',');
-        if (! $header) {
+        $rows = [];
+        if (in_array($extension, ['xlsx', 'xls'], true)) {
+            $spreadsheet = IOFactory::load($file->getRealPath());
+            $worksheet = $spreadsheet->getActiveSheet();
+            $rows = $worksheet->toArray();
+        } else {
+            $handle = fopen($file->getRealPath(), 'r');
+            if (! $handle) {
+                return back()->withErrors(['file' => 'Gagal membaca berkas CSV.']);
+            }
+            while (($data = fgetcsv($handle, 2000, ',')) !== false) {
+                $rows[] = $data;
+            }
             fclose($handle);
-
-            return back()->withErrors(['file' => 'Berkas CSV kosong.']);
         }
 
-        $header = array_map(fn ($h) => strtolower(trim((string) $h)), $header);
+        if (empty($rows)) {
+            return back()->withErrors(['file' => 'Berkas kosong atau tidak dapat dibaca.']);
+        }
+
+        $headerMap = [
+            'nama' => 'name',
+            'program studi' => 'study_program',
+            'program_studi' => 'study_program',
+            'prodi' => 'study_program',
+            'jurusan' => 'study_program',
+            'angkatan' => 'class_year',
+            'tahun_masuk' => 'class_year',
+            'no_hp' => 'phone',
+            'nomor_hp' => 'phone',
+            'telepon' => 'phone',
+            'hp' => 'phone',
+        ];
+
+        $rawHeader = array_map(fn ($h) => strtolower(trim((string) $h)), array_shift($rows));
+        $header = array_map(fn ($h) => $headerMap[$h] ?? $h, $rawHeader);
         $expected = ['nim', 'name', 'email', 'study_program', 'class_year', 'semester'];
 
         foreach ($expected as $exp) {
             if (! in_array($exp, $header, true)) {
-                fclose($handle);
-
-                return back()->withErrors(['file' => "Kolom wajib '{$exp}' tidak ditemukan pada header CSV. Contoh header: nim,name,email,study_program,class_year,semester,phone"]);
+                return back()->withErrors(['file' => "Kolom wajib '{$exp}' (atau padanan Indonesianya) tidak ditemukan pada header berkas. Contoh header: nim,name,email,study_program,class_year,semester,phone"]);
             }
         }
 
@@ -149,7 +176,7 @@ class StudentController extends Controller
         $errors = [];
         $rowNum = 1;
 
-        while (($row = fgetcsv($handle, 1000, ',')) !== false) {
+        foreach ($rows as $row) {
             $rowNum++;
             if (count($row) < count($expected)) {
                 continue;
@@ -176,7 +203,7 @@ class StudentController extends Controller
                     'nim' => $nim,
                     'name' => $name,
                     'email' => $email,
-                    'study_program' => $studyProgram,
+                    'study_program' => $studyProgram ?: $existing->study_program,
                     'class_year' => $classYear > 0 ? $classYear : $existing->class_year,
                     'semester' => ($semester >= 1 && $semester <= 14) ? $semester : $existing->semester,
                     'phone' => $phone ?: $existing->phone,
@@ -187,7 +214,7 @@ class StudentController extends Controller
                     'nim' => $nim,
                     'name' => $name,
                     'email' => $email,
-                    'study_program' => $studyProgram,
+                    'study_program' => $studyProgram ?: 'Informatika',
                     'class_year' => $classYear > 0 ? $classYear : (int) date('Y'),
                     'semester' => ($semester >= 1 && $semester <= 14) ? $semester : 1,
                     'student_status' => StudentStatus::Active,
@@ -196,8 +223,6 @@ class StudentController extends Controller
                 $imported++;
             }
         }
-
-        fclose($handle);
 
         $audit->handle($request->user(), 'student.import', null, null, [
             'imported' => $imported,
