@@ -22,12 +22,24 @@
 
                 <nav class="hidden sm:flex items-center gap-1">
                     <a href="{{ route('dashboard') }}"
-                       class="px-3 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('dashboard') ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
+                       class="px-3 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('dashboard') ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
                         Dashboard
                     </a>
+                    <a href="{{ route('student.voting.index') }}"
+                       class="px-3 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('student.voting.*') ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
+                        Bilik Suara
+                    </a>
+                    <a href="{{ route('public.candidates.index') }}"
+                       class="px-3 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('public.candidates.*') ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
+                        Kandidat
+                    </a>
                     <a href="{{ route('registration.index') }}"
-                       class="px-3 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('registration.*') ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
+                       class="px-3 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('registration.*') ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
                         Pendaftaran Calon
+                    </a>
+                    <a href="{{ route('public.results.index') }}"
+                       class="px-3 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('public.results.*') ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
+                        Hasil
                     </a>
                     <a href="{{ route('check-voter') }}"
                        class="px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">

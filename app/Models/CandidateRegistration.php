@@ -10,7 +10,27 @@ class CandidateRegistration extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['election_id', 'chairman_student_id', 'vice_chairman_student_id', 'chairman_phone', 'vice_chairman_phone', 'vision', 'mission'];
+    protected $fillable = [
+        'election_id',
+        'registration_number',
+        'chairman_student_id',
+        'vice_chairman_student_id',
+        'chairman_phone',
+        'vice_chairman_phone',
+        'vision',
+        'mission',
+        'photo_path',
+        'status',
+        'submitted_at',
+        'resubmitted_at',
+        'verified_at',
+        'established_at',
+        'revision_deadline',
+        'verified_by',
+        'reviewed_by',
+        'rejection_reason',
+        'revision_notes',
+    ];
 
     protected function casts(): array
     {

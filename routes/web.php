@@ -1,12 +1,20 @@
 <?php
 
+use App\Http\Controllers\Admin\CandidateController as AdminCandidateController;
+use App\Http\Controllers\Admin\CandidateRegistrationController as AdminCandidateRegistrationController;
 use App\Http\Controllers\Admin\ElectionController;
 use App\Http\Controllers\Admin\ElectionRequirementController;
+use App\Http\Controllers\Admin\ElectionResultController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\VoterController;
+use App\Http\Controllers\Admin\VotingMonitorController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PublicCandidateController;
+use App\Http\Controllers\PublicResultController;
 use App\Http\Controllers\PublicVoterCheckController;
+use App\Http\Controllers\Student\CandidateRegistrationController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Student\VotingController;
 use App\Models\Election;
 use App\Models\Student;
 use App\Models\Voter;
@@ -15,6 +23,8 @@ use Illuminate\Support\Facades\Route;
 // ─── Public ───────────────────────────────────────────────────────────────────
 Route::get('/', fn () => redirect()->route('login'))->name('home');
 Route::get('/cek-pemilih', [PublicVoterCheckController::class, 'index'])->name('check-voter');
+Route::get('/kandidat', [PublicCandidateController::class, 'index'])->name('public.candidates.index');
+Route::get('/hasil', [PublicResultController::class, 'index'])->name('public.results.index');
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 Route::middleware('guest')->group(function () {
@@ -28,10 +38,16 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 // ─── Mahasiswa ────────────────────────────────────────────────────────────────
-use App\Http\Controllers\Student\CandidateRegistrationController;
-
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
+
+    // Voting Portal
+    Route::prefix('voting')->name('student.voting.')->group(function () {
+        Route::get('/', [VotingController::class, 'index'])->name('index');
+        Route::get('/{election}', [VotingController::class, 'show'])->name('show');
+        Route::post('/{election}', [VotingController::class, 'vote'])->middleware('throttle:vote')->name('vote');
+        Route::get('/{election}/selesai', [VotingController::class, 'completed'])->name('completed');
+    });
 
     // Pendaftaran Bakal Calon
     Route::prefix('pendaftaran-bakal-calon')->name('registration.')->group(function () {
@@ -44,6 +60,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('/{registration}/submit', [CandidateRegistrationController::class, 'submit'])->name('submit');
         Route::post('/{registration}/resubmit', [CandidateRegistrationController::class, 'resubmit'])->name('resubmit');
         Route::post('/{registration}/dokumen/{requirement}', [CandidateRegistrationController::class, 'uploadDocument'])->name('upload-document');
+        Route::post('/{registration}/foto', [CandidateRegistrationController::class, 'uploadPhoto'])->name('upload-photo');
     });
 });
 
@@ -75,4 +92,27 @@ Route::middleware(['auth', 'active'])->prefix('admin')->name('admin.')->group(fu
     // Syarat Berkas Calon
     Route::patch('elections/{election}/requirements/{requirement}/toggle', [ElectionRequirementController::class, 'toggle'])->name('elections.requirements.toggle');
     Route::resource('elections.requirements', ElectionRequirementController::class)->except(['show']);
+
+    // Phase 5: Verifikasi Bakal Calon
+    Route::get('pendaftaran-bakal-calon', [AdminCandidateRegistrationController::class, 'index'])->name('registrations.index');
+    Route::get('pendaftaran-bakal-calon/{registration}', [AdminCandidateRegistrationController::class, 'show'])->name('registrations.show');
+    Route::post('pendaftaran-bakal-calon/{registration}/start-review', [AdminCandidateRegistrationController::class, 'startReview'])->name('registrations.start-review');
+    Route::post('pendaftaran-bakal-calon/dokumen/{document}/review', [AdminCandidateRegistrationController::class, 'reviewDocument'])->name('registrations.review-document');
+    Route::post('pendaftaran-bakal-calon/{registration}/verify', [AdminCandidateRegistrationController::class, 'verify'])->name('registrations.verify');
+    Route::post('pendaftaran-bakal-calon/{registration}/revision', [AdminCandidateRegistrationController::class, 'requestRevision'])->name('registrations.request-revision');
+    Route::post('pendaftaran-bakal-calon/{registration}/reject', [AdminCandidateRegistrationController::class, 'reject'])->name('registrations.reject');
+    Route::get('pendaftaran-bakal-calon/dokumen/{document}/download', [AdminCandidateRegistrationController::class, 'downloadDocument'])->name('registrations.download-document');
+
+    // Phase 5: Calon Resmi
+    Route::get('kandidat', [AdminCandidateController::class, 'index'])->name('candidates.index');
+    Route::post('kandidat/{registration}/tetapkan', [AdminCandidateController::class, 'establish'])->name('candidates.establish');
+    Route::post('kandidat/{candidate}/nomor-urut', [AdminCandidateController::class, 'assignNumber'])->name('candidates.assign-number');
+    Route::post('kandidat/{candidate}/status', [AdminCandidateController::class, 'toggleStatus'])->name('candidates.toggle-status');
+
+    // Phase 6: Monitoring Voting Real-Time
+    Route::get('voting-monitor', [VotingMonitorController::class, 'index'])->name('voting-monitor');
+
+    // Phase 6: Perhitungan & Publikasi Hasil
+    Route::get('hasil', [ElectionResultController::class, 'index'])->name('results.index');
+    Route::post('hasil/{election}/publish', [ElectionResultController::class, 'publish'])->name('results.publish');
 });

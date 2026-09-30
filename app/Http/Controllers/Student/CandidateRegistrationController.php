@@ -212,4 +212,26 @@ class CandidateRegistrationController extends Controller
 
         return back()->with('success', "Dokumen '{$requirement->name}' berhasil diunggah.");
     }
+
+    public function uploadPhoto(Request $request, CandidateRegistration $registration): RedirectResponse
+    {
+        Gate::authorize('update', $registration);
+
+        $request->validate([
+            'photo' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+        ], [
+            'photo.image' => 'File harus berupa gambar.',
+            'photo.mimes' => 'Format gambar harus JPG, JPEG, atau PNG.',
+            'photo.max' => 'Ukuran foto maksimal 2 MB.',
+        ]);
+
+        if ($registration->photo_path && Storage::disk('public')->exists($registration->photo_path)) {
+            Storage::disk('public')->delete($registration->photo_path);
+        }
+
+        $path = $request->file('photo')->store('candidates', 'public');
+        $registration->update(['photo_path' => $path]);
+
+        return back()->with('success', 'Foto pasangan calon berhasil diperbarui.');
+    }
 }

@@ -41,29 +41,56 @@
 
             {{-- Data Pasangan --}}
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4">Data Pasangan Calon</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="bg-slate-50 rounded-xl p-4">
-                        <div class="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Calon Ketua</div>
-                        <div class="font-bold text-slate-900">{{ $registration->chairman->name }}</div>
-                        <div class="text-xs text-slate-500 mt-0.5">{{ $registration->chairman->nim }}</div>
-                        <div class="text-xs text-slate-500">Semester {{ $registration->chairman->semester }}</div>
-                        @if ($registration->chairman_phone)
-                            <div class="text-xs text-slate-500 mt-1">📱 {{ $registration->chairman_phone }}</div>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Data Pasangan Calon</h2>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-5 items-start">
+                    <div class="w-32 h-40 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex flex-col items-center justify-center shrink-0 relative group">
+                        @if ($registration->photo_path)
+                            <img src="{{ asset('storage/' . $registration->photo_path) }}" alt="Foto Pasangan" class="w-full h-full object-cover" />
+                        @else
+                            <div class="text-slate-400 text-center p-2">
+                                <svg class="w-8 h-8 mx-auto mb-1 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <span class="text-[10px] block leading-tight font-medium">Belum ada foto</span>
+                            </div>
+                        @endif
+
+                        @if (in_array($registration->status->value, ['draft', 'revision_required']))
+                            <form method="POST" action="{{ route('registration.upload-photo', $registration) }}" enctype="multipart/form-data" class="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition cursor-pointer">
+                                @csrf
+                                <input type="file" name="photo" id="photo_input" class="hidden" accept="image/png,image/jpeg,image/jpg" onchange="this.form.submit()" />
+                                <label for="photo_input" class="cursor-pointer text-white text-xs font-semibold text-center p-2 hover:underline">
+                                    Ganti Foto
+                                </label>
+                            </form>
                         @endif
                     </div>
-                    <div class="bg-slate-50 rounded-xl p-4">
-                        <div class="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Calon Wakil Ketua</div>
-                        @if ($registration->viceChairman)
-                            <div class="font-bold text-slate-900">{{ $registration->viceChairman->name }}</div>
-                            <div class="text-xs text-slate-500 mt-0.5">{{ $registration->viceChairman->nim }}</div>
-                            <div class="text-xs text-slate-500">Semester {{ $registration->viceChairman->semester }}</div>
-                            @if ($registration->vice_chairman_phone)
-                                <div class="text-xs text-slate-500 mt-1">📱 {{ $registration->vice_chairman_phone }}</div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1 w-full">
+                        <div class="bg-slate-50 rounded-xl p-4">
+                            <div class="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Calon Ketua</div>
+                            <div class="font-bold text-slate-900">{{ $registration->chairman->name }}</div>
+                            <div class="text-xs text-slate-500 mt-0.5">{{ $registration->chairman->nim }}</div>
+                            <div class="text-xs text-slate-500">Semester {{ $registration->chairman->semester }}</div>
+                            @if ($registration->chairman_phone)
+                                <div class="text-xs text-slate-500 mt-1">📱 {{ $registration->chairman_phone }}</div>
                             @endif
-                        @else
-                            <div class="text-slate-400 text-sm">Belum diisi</div>
-                        @endif
+                        </div>
+                        <div class="bg-slate-50 rounded-xl p-4">
+                            <div class="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Calon Wakil Ketua</div>
+                            @if ($registration->viceChairman)
+                                <div class="font-bold text-slate-900">{{ $registration->viceChairman->name }}</div>
+                                <div class="text-xs text-slate-500 mt-0.5">{{ $registration->viceChairman->nim }}</div>
+                                <div class="text-xs text-slate-500">Semester {{ $registration->viceChairman->semester }}</div>
+                                @if ($registration->vice_chairman_phone)
+                                    <div class="text-xs text-slate-500 mt-1">📱 {{ $registration->vice_chairman_phone }}</div>
+                                @endif
+                            @else
+                                <div class="text-slate-400 text-sm">Belum diisi</div>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>

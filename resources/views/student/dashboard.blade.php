@@ -70,6 +70,25 @@
                     @endif
                 </div>
             </div>
+
+            {{-- Tahapan & Linimasa Pemilihan --}}
+            <div class="px-6 py-4 bg-slate-50/70 border-t border-slate-100">
+                <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Tahapan &amp; Linimasa Pemilihan</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <div class="p-2.5 bg-white rounded-lg border border-slate-200">
+                        <span class="text-slate-400 font-semibold block">Pendaftaran:</span>
+                        <span class="font-bold text-slate-800">{{ $activeElection->registration_start->translatedFormat('d M') }} – {{ $activeElection->registration_end->translatedFormat('d M Y') }}</span>
+                    </div>
+                    <div class="p-2.5 bg-white rounded-lg border border-slate-200">
+                        <span class="text-slate-400 font-semibold block">Verifikasi Berkas:</span>
+                        <span class="font-bold text-slate-800">{{ $activeElection->verification_start->translatedFormat('d M') }} – {{ $activeElection->verification_end->translatedFormat('d M Y') }}</span>
+                    </div>
+                    <div class="p-2.5 bg-white rounded-lg border border-slate-200">
+                        <span class="text-slate-400 font-semibold block">Pemungutan Suara:</span>
+                        <span class="font-bold text-slate-800">{{ $activeElection->voting_start->translatedFormat('d M Y, H:i') }} WITA</span>
+                    </div>
+                </div>
+            </div>
         </div>
     @else
         <div class="bg-white rounded-2xl border border-slate-200 p-8 text-center mb-6">

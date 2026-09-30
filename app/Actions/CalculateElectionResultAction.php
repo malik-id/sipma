@@ -6,9 +6,11 @@ use App\Models\Election;
 
 final class CalculateElectionResultAction
 {
-    public function handle(Election $election): array
+    public function handle(Election $election, bool $ignorePublicCheck = false): array
     {
-        abort_unless($election->resultsPublic(), 403, 'Hasil belum dipublikasikan.');
+        if (! $ignorePublicCheck) {
+            abort_unless($election->resultsPublic(), 403, 'Hasil belum dipublikasikan.');
+        }
         $candidates = $election->candidates()->with(['chairman', 'viceChairman'])->withCount('ballots')->orderBy('candidate_number')->get();
         $total = (int) $candidates->sum('ballots_count');
         $eligible = $election->voters()->where('voter_status', 'eligible')->count();

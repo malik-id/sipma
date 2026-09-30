@@ -1,0 +1,129 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Enums\ElectionStatus;
+use App\Enums\RegistrationStatus;
+use App\Models\Candidate;
+use App\Models\CandidateRegistration;
+use App\Models\Election;
+use App\Models\Student;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class CandidateVerificationTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private User $adminUser;
+
+    private Student $chairman;
+
+    private Student $viceChairman;
+
+    private Election $election;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->adminUser = User::factory()->create([
+            'role' => 'super_admin',
+            'active' => true,
+        ]);
+
+        $this->chairman = Student::create([
+            'nim' => 'IK2411001',
+            'name' => 'Calon Ketua',
+            'email' => 'ketua@himakom.ac.id',
+            'study_program' => 'Informatika',
+            'class_year' => 2024,
+            'semester' => 4,
+            'status' => 'active',
+        ]);
+
+        $this->viceChairman = Student::create([
+            'nim' => 'IK2411002',
+            'name' => 'Calon Wakil',
+            'email' => 'wakil@himakom.ac.id',
+            'study_program' => 'Informatika',
+            'class_year' => 2024,
+            'semester' => 4,
+            'status' => 'active',
+        ]);
+
+        $this->election = Election::create([
+            'name' => 'Pemilihan HIMAKOM 2026',
+            'slug' => 'pemilihan-himakom-2026',
+            'registration_start' => now()->subDays(5),
+            'registration_end' => now()->subDays(2),
+            'verification_start' => now()->subDay(),
+            'verification_end' => now()->addDays(3),
+            'voting_start' => now()->addDays(5),
+            'voting_end' => now()->addDays(5)->addHours(8),
+            'status' => ElectionStatus::Verification,
+        ]);
+    }
+
+    public function test_admin_can_view_candidate_registrations_list(): void
+    {
+        CandidateRegistration::create([
+            'election_id' => $this->election->id,
+            'chairman_student_id' => $this->chairman->id,
+            'vice_chairman_student_id' => $this->viceChairman->id,
+            'status' => RegistrationStatus::Submitted,
+            'registration_number' => 'BC-2026-0001',
+            'submitted_at' => now(),
+        ]);
+
+        $response = $this->actingAs($this->adminUser)->get(route('admin.registrations.index'));
+
+        $response->assertOk();
+        $response->assertSee('Calon Ketua');
+        $response->assertSee('BC-2026-0001');
+    }
+
+    public function test_admin_can_start_reviewing_candidate_registration(): void
+    {
+        $reg = CandidateRegistration::create([
+            'election_id' => $this->election->id,
+            'chairman_student_id' => $this->chairman->id,
+            'vice_chairman_student_id' => $this->viceChairman->id,
+            'status' => RegistrationStatus::Submitted,
+            'registration_number' => 'BC-2026-0001',
+            'submitted_at' => now(),
+        ]);
+
+        $response = $this->actingAs($this->adminUser)->post(route('admin.registrations.start-review', $reg));
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('candidate_registrations', [
+            'id' => $reg->id,
+            'status' => RegistrationStatus::UnderReview->value,
+        ]);
+    }
+
+    public function test_admin_can_assign_candidate_number(): void
+    {
+        $candidate = Candidate::create([
+            'election_id' => $this->election->id,
+            'chairman_student_id' => $this->chairman->id,
+            'vice_chairman_student_id' => $this->viceChairman->id,
+            'vision' => 'Visi test',
+            'mission' => ['Misi 1'],
+            'status' => 'active',
+            'established_at' => now(),
+        ]);
+
+        $response = $this->actingAs($this->adminUser)->post(route('admin.candidates.assign-number', $candidate), [
+            'candidate_number' => 1,
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('candidates', [
+            'id' => $candidate->id,
+            'candidate_number' => 1,
+        ]);
+    }
+}

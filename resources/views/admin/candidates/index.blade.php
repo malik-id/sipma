@@ -1,0 +1,154 @@
+<x-layouts.admin title="Penetapan & Manajemen Calon Resmi">
+
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Calon Resmi Pemilihan</h1>
+            <p class="text-sm text-slate-500 mt-1">Tetapkan pasangan calon yang telah terverifikasi dan tentukan nomor urut.</p>
+        </div>
+
+        {{-- Election Picker --}}
+        <div>
+            <form method="GET" action="{{ route('admin.candidates.index') }}">
+                <select name="election_id" class="text-sm border-slate-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm" onchange="this.form.submit()">
+                    @foreach ($elections as $el)
+                        <option value="{{ $el->id }}" {{ $activeElection && $activeElection->id === $el->id ? 'selected' : '' }}>
+                            {{ $el->name }} ({{ ucfirst($el->status->value) }})
+                        </option>
+                    @endforeach
+                </select>
+            </form>
+        </div>
+    </div>
+
+    @if ($activeElection)
+
+        {{-- 1. Bakal Calon Terverifikasi Siap Ditetapkan --}}
+        @if ($verifiedRegistrations->isNotEmpty())
+            <div class="mb-8 bg-blue-50 border border-blue-200 rounded-2xl p-6 shadow-sm">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
+                        ✓
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold text-blue-900">Bakal Calon Terverifikasi Siap Ditetapkan ({{ $verifiedRegistrations->count() }})</h2>
+                        <p class="text-xs text-blue-700">Pasangan di bawah ini telah lolos verifikasi berkas dan siap ditetapkan menjadi calon resmi.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @foreach ($verifiedRegistrations as $vr)
+                        <div class="bg-white p-4 rounded-xl border border-blue-100 flex items-center justify-between gap-4 shadow-xs">
+                            <div>
+                                <div class="font-bold text-slate-800">{{ $vr->chairman->name }} &amp; {{ $vr->viceChairman?->name ?? '—' }}</div>
+                                <div class="text-xs text-slate-400 font-mono mt-0.5">No. Reg: {{ $vr->registration_number }}</div>
+                            </div>
+                            <form method="POST" action="{{ route('admin.candidates.establish', $vr) }}"
+                                onsubmit="return confirm('Tetapkan pasangan ini sebagai calon resmi pemilihan?')">
+                                @csrf
+                                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition">
+                                    Tetapkan Calon Resmi →
+                                </button>
+                            </form>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        {{-- 2. Daftar Calon Resmi yang Sudah Ditetapkan --}}
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <h2 class="text-base font-bold text-slate-800 mb-4">Daftar Pasangan Calon Resmi</h2>
+
+            @if ($candidates->isEmpty())
+                <div class="text-center py-12 text-slate-400">
+                    <svg class="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <p class="font-medium text-slate-600">Belum ada calon resmi yang ditetapkan pada pemilihan ini.</p>
+                    <p class="text-xs text-slate-400 mt-1">Verifikasi berkas pendaftaran bakal calon terlebih dahulu untuk menetapkan calon resmi.</p>
+                </div>
+            @else
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach ($candidates as $cand)
+                        <div class="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-xs hover:border-slate-300 transition flex flex-col justify-between">
+                            <div>
+                                {{-- Card Header: Nomor Urut Badge --}}
+                                <div class="p-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        @if ($cand->candidate_number)
+                                            <span class="w-8 h-8 rounded-full bg-blue-600 text-white font-black flex items-center justify-center text-sm shadow-xs">
+                                                {{ $cand->candidate_number }}
+                                            </span>
+                                            <span class="text-xs font-bold text-slate-700">Nomor Urut {{ $cand->candidate_number }}</span>
+                                        @else
+                                            <span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">
+                                                Belum Ada No. Urut
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase {{ $cand->status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800' }}">
+                                        {{ $cand->status === 'active' ? 'Aktif' : 'Didiskualifikasi' }}
+                                    </span>
+                                </div>
+
+                                {{-- Foto & Profil --}}
+                                <div class="p-5">
+                                    <div class="w-full h-44 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden mb-4 flex items-center justify-center">
+                                        @if ($cand->photo_path)
+                                            <img src="{{ asset('storage/' . $cand->photo_path) }}" alt="Foto Pasangan" class="w-full h-full object-cover" />
+                                        @else
+                                            <div class="text-slate-400 text-xs text-center p-4">
+                                                Tidak ada foto resmi
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <div>
+                                            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Ketua</span>
+                                            <div class="font-bold text-slate-800 text-sm">{{ $cand->chairman->name }}</div>
+                                            <div class="text-xs text-slate-500 font-mono">{{ $cand->chairman->nim }} &bull; {{ $cand->chairman->study_program }}</div>
+                                        </div>
+                                        <div>
+                                            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Wakil Ketua</span>
+                                            <div class="font-bold text-slate-800 text-sm">{{ $cand->viceChairman?->name ?? '—' }}</div>
+                                            <div class="text-xs text-slate-500 font-mono">{{ $cand->viceChairman?->nim ?? '—' }} &bull; {{ $cand->viceChairman?->study_program ?? '—' }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Card Footer: Assign Number & Status Toggle --}}
+                            <div class="p-4 bg-slate-50 border-t border-slate-100 space-y-3">
+                                <form method="POST" action="{{ route('admin.candidates.assign-number', $cand) }}" class="flex items-center gap-2">
+                                    @csrf
+                                    <input type="number" name="candidate_number" value="{{ $cand->candidate_number }}" min="1" placeholder="No. Urut"
+                                        class="w-20 text-xs border-slate-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white" required />
+                                    <button type="submit" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition shadow-xs">
+                                        Simpan No
+                                    </button>
+                                </form>
+
+                                <div class="flex items-center justify-between pt-2 border-t border-slate-200 text-xs">
+                                    <form method="POST" action="{{ route('admin.candidates.toggle-status', $cand) }}">
+                                        @csrf
+                                        <button type="submit" class="text-xs font-medium {{ $cand->status === 'active' ? 'text-rose-600 hover:text-rose-800' : 'text-emerald-600 hover:text-emerald-800' }}">
+                                            {{ $cand->status === 'active' ? 'Diskualifikasi Kandidat' : 'Aktifkan Kembali' }}
+                                        </button>
+                                    </form>
+                                    <span class="text-[10px] text-slate-400">Ditetapkan: {{ $cand->established_at ? $cand->established_at->translatedFormat('d M Y') : '—' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+
+    @else
+        <div class="bg-white rounded-2xl border border-slate-200 p-8 text-center text-slate-400">
+            Pilih periode pemilihan di atas untuk mengelola calon resmi.
+        </div>
+    @endif
+
+</x-layouts.admin>
