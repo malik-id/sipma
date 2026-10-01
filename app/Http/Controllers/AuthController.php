@@ -49,7 +49,16 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard'));
+        if (! $user->canAccessAdminPanel()) {
+            $intended = $request->session()->get('url.intended');
+            if ($intended && str_contains($intended, '/admin')) {
+                $request->session()->forget('url.intended');
+            }
+
+            return redirect()->intended(route('dashboard'));
+        }
+
+        return redirect()->intended(route('admin.dashboard'));
     }
 
     public function admin(AdminLoginRequest $request, RecordAudit $audit)

@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [SecurityHeaders::class, ActiveAccount::class]);
         $middleware->alias(['active' => ActiveAccount::class]);
+        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('admin*') ? route('admin.login') : route('login'));
+        $middleware->redirectUsersTo(fn (Request $request) => $request->user()?->canAccessAdminPanel() ? route('admin.dashboard') : route('dashboard'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->dontFlash(['password', 'password_confirmation', 'current_password', 'candidate_id', 'code', 'state']);

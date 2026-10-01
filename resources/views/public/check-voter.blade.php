@@ -1,58 +1,118 @@
 <x-layouts.app title="Cek Daftar Pemilih Tetap (DPT)">
 
-    <div class="min-h-screen bg-slate-50 flex flex-col justify-between">
+    <div class="min-h-screen bg-zinc-50 flex flex-col justify-between">
         {{-- Navbar --}}
-        <header class="bg-white border-b border-slate-200">
+        <header class="bg-white border-b border-zinc-200 sticky top-0 z-30">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-white shadow-sm">
-                        H
-                    </div>
+                <a href="{{ route('home') }}" class="flex items-center gap-3">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo UMB Palopo" class="w-9 h-9 object-contain" />
                     <div>
-                        <a href="{{ route('home') }}" class="font-bold text-slate-900 tracking-tight">SIPMA HIMAKOM</a>
-                        <p class="text-xs text-slate-500">Portal Pemilihan Mahasiswa</p>
+                        <span class="font-bold text-zinc-900 tracking-tight text-sm block">SIPMA UMB</span>
+                        <p class="text-[10px] text-zinc-500 leading-none">Universitas Mega Buana Palopo</p>
                     </div>
-                </div>
+                </a>
 
-                <div class="flex items-center gap-3">
+                {{-- Desktop Navigation --}}
+                <nav class="hidden sm:flex items-center gap-2">
+                    <a href="{{ route('home') }}" class="px-3 py-1.5 text-xs font-semibold text-zinc-600 hover:text-zinc-900 rounded-lg hover:bg-zinc-100 transition flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-lg">home</span>
+                        <span>Beranda</span>
+                    </a>
+                    <a href="{{ route('public.candidates.index') }}" class="px-3 py-1.5 text-xs font-semibold text-zinc-600 hover:text-zinc-900 rounded-lg hover:bg-zinc-100 transition flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-lg">badge</span>
+                        <span>Kandidat</span>
+                    </a>
+                    <a href="{{ route('public.results.index') }}" class="px-3 py-1.5 text-xs font-semibold text-zinc-600 hover:text-zinc-900 rounded-lg hover:bg-zinc-100 transition flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-lg">leaderboard</span>
+                        <span>Hasil</span>
+                    </a>
                     @auth
-                        @if (auth()->user()->isAdmin())
-                            <a href="{{ route('admin.dashboard') }}" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Dashboard Admin →</a>
-                        @else
-                            <a href="{{ route('dashboard') }}" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Dashboard Saya →</a>
-                        @endif
+                        <a href="{{ auth()->user()->canAccessAdminPanel() ? route('admin.dashboard') : route('dashboard') }}" class="px-3.5 py-1.5 bg-zinc-900 text-amber-400 hover:bg-zinc-800 text-xs font-bold rounded-lg shadow-xs transition flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-lg">dashboard</span>
+                            <span>Panel</span>
+                        </a>
                     @else
-                        <a href="{{ route('login') }}" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition">
-                            Masuk
+                        <a href="{{ route('login') }}" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-zinc-950 bg-amber-500 hover:bg-amber-400 transition shadow-xs flex items-center gap-1">
+                            <span class="material-symbols-outlined text-lg">login</span>
+                            <span>Masuk</span>
                         </a>
                     @endauth
+                </nav>
+
+                {{-- Mobile Action + Hamburger Toggle --}}
+                <div class="flex items-center gap-2 sm:hidden">
+                    @auth
+                        <a href="{{ auth()->user()->canAccessAdminPanel() ? route('admin.dashboard') : route('dashboard') }}" class="px-2.5 py-1.5 bg-zinc-900 text-amber-400 text-xs font-bold rounded-lg shadow-xs flex items-center gap-1">
+                            <span class="material-symbols-outlined text-base">dashboard</span>
+                            <span>Panel</span>
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-zinc-950 bg-amber-500 hover:bg-amber-400 transition shadow-xs flex items-center gap-1">
+                            <span class="material-symbols-outlined text-base">login</span>
+                            <span>Masuk</span>
+                        </a>
+                    @endauth
+
+                    <button type="button" onclick="togglePublicMobileMenu()" class="p-2 text-zinc-700 hover:text-zinc-950 hover:bg-zinc-100 rounded-lg transition" aria-label="Menu">
+                        <span id="public-menu-icon" class="material-symbols-outlined text-2xl">menu</span>
+                    </button>
                 </div>
+            </div>
+
+            {{-- Mobile Dropdown Menu Drawer --}}
+            <div id="public-mobile-menu" class="hidden sm:hidden border-t border-zinc-200 bg-white/95 backdrop-blur-sm px-4 py-3 space-y-1 shadow-md">
+                <a href="{{ route('home') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-zinc-800 hover:bg-amber-50 hover:text-amber-700 transition">
+                    <span class="material-symbols-outlined text-xl text-amber-500">home</span>
+                    <span>Beranda Utama</span>
+                </a>
+                <a href="{{ route('public.candidates.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-zinc-800 hover:bg-amber-50 hover:text-amber-700 transition">
+                    <span class="material-symbols-outlined text-xl text-amber-500">badge</span>
+                    <span>Daftar Pasangan Calon</span>
+                </a>
+                <a href="{{ route('public.results.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-zinc-800 hover:bg-amber-50 hover:text-amber-700 transition">
+                    <span class="material-symbols-outlined text-xl text-amber-500">leaderboard</span>
+                    <span>Hasil Perolehan Suara</span>
+                </a>
             </div>
         </header>
 
+        <script>
+            function togglePublicMobileMenu() {
+                const menu = document.getElementById('public-mobile-menu');
+                const icon = document.getElementById('public-menu-icon');
+                if (menu) {
+                    const isHidden = menu.classList.contains('hidden');
+                    menu.classList.toggle('hidden');
+                    if (icon) {
+                        icon.textContent = isHidden ? 'close' : 'menu';
+                    }
+                }
+            }
+        </script>
+
         {{-- Main Container --}}
-        <main class="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-10">
+        <main class="flex-1 max-w-2xl w-full mx-auto px-4 sm:px-6 py-10">
             <div class="text-center mb-8">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100 mb-3">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 mb-3">
                     Pencarian DPT Terbuka
                 </span>
-                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-                    Cek Status Daftar Pemilih (DPT)
+                <h1 class="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight">
+                    Cek Status Hak Pilih (DPT)
                 </h1>
-                <p class="mt-2 text-sm text-slate-500 max-w-lg mx-auto">
-                    Masukkan NIM atau Email Google Anda untuk memeriksa status hak pilih Anda pada pemilihan HIMAKOM.
+                <p class="mt-2 text-xs sm:text-sm text-zinc-500 max-w-md mx-auto">
+                    Masukkan NIM atau Email Google Anda untuk memverifikasi apakah Anda berhak memilih pada pemilihan mahasiswa.
                 </p>
             </div>
 
             {{-- Form Pencarian --}}
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 mb-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-zinc-200 p-6 sm:p-8 mb-6">
                 <form method="GET" action="{{ route('check-voter') }}" class="space-y-4">
                     @if ($elections->count() > 1)
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Periode Pemilihan</label>
+                            <label class="block text-xs font-bold text-zinc-700 uppercase tracking-wider mb-1.5">Periode Pemilihan</label>
                             <select
                                 name="election_id"
-                                class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                class="w-full px-3.5 py-2.5 text-sm bg-zinc-50 border border-zinc-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
                                 @foreach ($elections as $el)
                                     <option value="{{ $el->id }}" {{ ($selectedElection?->id == $el->id) ? 'selected' : '' }}>
                                         {{ $el->name }}
@@ -67,7 +127,7 @@
                     @endif
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">NIM atau Email Mahasiswa</label>
+                        <label class="block text-xs font-bold text-zinc-700 uppercase tracking-wider mb-1.5">NIM atau Email Mahasiswa</label>
                         <div class="relative">
                             <input
                                 type="text"
@@ -75,19 +135,18 @@
                                 value="{{ $keyword }}"
                                 required
                                 autofocus
-                                placeholder="Contoh: IK2411019 atau email@gmail.com"
-                                class="w-full pl-11 pr-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                placeholder="Contoh: IK2411019 atau nama@gmail.com"
+                                class="w-full pl-11 pr-4 py-3 text-sm bg-zinc-50 border border-zinc-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
                             />
-                            <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                            </svg>
+                            <span class="material-symbols-outlined text-zinc-400 absolute left-3.5 top-3.5 text-xl">search</span>
                         </div>
                     </div>
 
                     <button
                         type="submit"
-                        class="w-full py-3 bg-blue-600 text-white font-semibold text-sm rounded-xl hover:bg-blue-700 shadow-sm transition">
-                        Periksa Status Sekarang
+                        class="w-full py-3 bg-zinc-950 hover:bg-zinc-800 text-amber-400 font-bold text-sm rounded-xl shadow-sm transition flex items-center justify-center gap-2 cursor-pointer">
+                        <span class="material-symbols-outlined text-base">how_to_reg</span>
+                        <span>Periksa Status Sekarang</span>
                     </button>
                 </form>
             </div>
@@ -98,37 +157,31 @@
                     {{-- Mahasiswa Tidak Ditemukan --}}
                     <div class="bg-rose-50 border border-rose-200 rounded-2xl p-6 text-center">
                         <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                            </svg>
+                            <span class="material-symbols-outlined text-2xl">person_off</span>
                         </div>
-                        <h3 class="text-base font-bold text-rose-900">Data Mahasiswa Tidak Ditemukan</h3>
-                        <p class="text-sm text-rose-700 mt-1 max-w-md mx-auto">
-                            NIM atau email <span class="font-mono font-semibold">{{ $keyword }}</span> belum terdaftar pada pangkalan data mahasiswa Fakultas Ilmu Komputer.
+                        <h3 class="text-sm font-bold text-rose-900">Data Mahasiswa Tidak Ditemukan</h3>
+                        <p class="text-xs text-rose-700 mt-1 max-w-md mx-auto">
+                            NIM atau email <span class="font-mono font-semibold">{{ $keyword }}</span> belum terdaftar di database master mahasiswa.
                         </p>
-                        <p class="text-xs text-rose-600 mt-3">Silakan hubungi panitia pemilihan untuk verifikasi identitas Anda.</p>
+                        <p class="text-[11px] text-rose-600 mt-2">Silakan hubungi panitia pemilihan untuk pendaftaran atau verifikasi identitas.</p>
                     </div>
                 @else
                     {{-- Mahasiswa Ditemukan --}}
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden">
                         {{-- Status Banner --}}
-                        <div class="p-6 border-b border-slate-100 flex items-center gap-4 {{ $voter && $voter->voter_status->value === 'eligible' ? 'bg-emerald-50/60' : 'bg-amber-50/60' }}">
-                            <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 {{ $voter && $voter->voter_status->value === 'eligible' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600' }}">
+                        <div class="p-5 sm:p-6 border-b border-zinc-100 flex items-center gap-4 {{ $voter && $voter->voter_status->value === 'eligible' ? 'bg-emerald-50/70' : 'bg-amber-50/70' }}">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 {{ $voter && $voter->voter_status->value === 'eligible' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
                                 @if ($voter && $voter->voter_status->value === 'eligible')
-                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                    </svg>
+                                    <span class="material-symbols-outlined text-2xl">verified</span>
                                 @else
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
+                                    <span class="material-symbols-outlined text-2xl">info</span>
                                 @endif
                             </div>
                             <div>
-                                <div class="text-xs font-semibold uppercase tracking-wider {{ $voter && $voter->voter_status->value === 'eligible' ? 'text-emerald-700' : 'text-amber-700' }}">
-                                    Status Hak Pilih
-                                </div>
-                                <h3 class="text-lg font-bold text-slate-900">
+                                <span class="text-[10px] font-bold uppercase tracking-wider {{ $voter && $voter->voter_status->value === 'eligible' ? 'text-emerald-800' : 'text-amber-800' }} block">
+                                    Status Hak Suara
+                                </span>
+                                <h3 class="text-base font-bold text-zinc-900 mt-0.5">
                                     @if ($voter && $voter->voter_status->value === 'eligible')
                                         Terdaftar sebagai Pemilih (Eligible)
                                     @elseif ($voter && $voter->voter_status->value === 'suspended')
@@ -136,53 +189,53 @@
                                     @elseif ($voter)
                                         Tidak Memenuhi Syarat Pemilih
                                     @else
-                                        Belum Masuk ke Daftar Pemilih (DPT)
+                                        Belum Masuk Daftar Pemilih Tetap (DPT)
                                     @endif
                                 </h3>
                                 @if ($selectedElection)
-                                    <p class="text-xs text-slate-500 mt-0.5">Pemilihan: {{ $selectedElection->name }}</p>
+                                    <p class="text-xs text-zinc-500 mt-0.5">Pemilihan: {{ $selectedElection->name }}</p>
                                 @endif
                             </div>
                         </div>
 
-                        {{-- Rincian Data --}}
+                        {{-- Rincian Data Mahasiswa --}}
                         <div class="p-6">
-                            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+                            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-xs sm:text-sm">
                                 <div>
-                                    <dt class="text-xs text-slate-400 font-medium uppercase tracking-wider">Nama Lengkap</dt>
-                                    <dd class="text-slate-900 font-semibold mt-0.5">{{ $student->name }}</dd>
+                                    <dt class="text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">Nama Mahasiswa</dt>
+                                    <dd class="text-zinc-900 font-bold mt-0.5">{{ $student->name }}</dd>
                                 </div>
                                 <div>
-                                    <dt class="text-xs text-slate-400 font-medium uppercase tracking-wider">NIM</dt>
-                                    <dd class="text-slate-900 font-mono font-semibold mt-0.5">{{ $student->nim }}</dd>
+                                    <dt class="text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">NIM</dt>
+                                    <dd class="text-zinc-900 font-mono font-bold mt-0.5">{{ $student->nim }}</dd>
                                 </div>
                                 <div>
-                                    <dt class="text-xs text-slate-400 font-medium uppercase tracking-wider">Program Studi</dt>
-                                    <dd class="text-slate-900 mt-0.5">{{ $student->study_program }}</dd>
+                                    <dt class="text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">Program Studi</dt>
+                                    <dd class="text-zinc-800 mt-0.5">{{ $student->study_program }}</dd>
                                 </div>
                                 <div>
-                                    <dt class="text-xs text-slate-400 font-medium uppercase tracking-wider">Angkatan / Semester</dt>
-                                    <dd class="text-slate-900 mt-0.5">{{ $student->class_year }} / Semester {{ $student->semester }}</dd>
+                                    <dt class="text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">Angkatan / Semester</dt>
+                                    <dd class="text-zinc-800 mt-0.5">{{ $student->class_year }} / Semester {{ $student->semester }}</dd>
                                 </div>
                                 <div>
-                                    <dt class="text-xs text-slate-400 font-medium uppercase tracking-wider">Status Akademik</dt>
-                                    <dd class="text-slate-900 mt-0.5">
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $student->isActive() ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800' }}">
+                                    <dt class="text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">Status Akademik</dt>
+                                    <dd class="mt-0.5">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold {{ $student->isActive() ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800' }}">
                                             {{ ucfirst($student->student_status->value) }}
                                         </span>
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt class="text-xs text-slate-400 font-medium uppercase tracking-wider">Email Terdaftar</dt>
-                                    <dd class="text-slate-900 text-xs font-mono mt-0.5">{{ $student->email }}</dd>
+                                    <dt class="text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">Email Terdaftar</dt>
+                                    <dd class="text-zinc-800 text-xs font-mono mt-0.5">{{ $student->email }}</dd>
                                 </div>
                             </dl>
 
                             @if ($voter && $voter->voter_status->value === 'eligible')
-                                <div class="mt-6 pt-6 border-t border-slate-100 flex items-center justify-between">
-                                    <p class="text-xs text-slate-500">Anda siap menggunakan hak suara saat periode pemungutan suara dibuka.</p>
-                                    <a href="{{ route('login') }}" class="px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition">
-                                        Masuk ke SIPMA
+                                <div class="mt-6 pt-5 border-t border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+                                    <p class="text-xs text-zinc-500">Anda dapat menggunakan hak pilih saat periode pemungutan suara dibuka.</p>
+                                    <a href="{{ route('login') }}" class="w-full sm:w-auto text-center px-4 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold rounded-lg transition shadow-sm">
+                                        Masuk &amp; Voting
                                     </a>
                                 </div>
                             @endif
@@ -193,8 +246,8 @@
         </main>
 
         {{-- Footer --}}
-        <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
-            SIPMA &copy; {{ date('Y') }} HIMAKOM — Fakultas Ilmu Komputer. Semua hak dilindungi.
+        <footer class="bg-white border-t border-zinc-200 py-6 text-center text-xs text-zinc-400">
+            SIPMA &copy; {{ date('Y') }} Universitas Mega Buana Palopo. Seluruh hak cipta dilindungi.
         </footer>
     </div>
 

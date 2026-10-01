@@ -1,170 +1,188 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-slate-50">
+<html lang="id" class="h-full bg-zinc-50">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
-    <title>{{ $title ?? 'Admin' }} — SIPMA HIMAKOM</title>
+    <title>{{ $title ?? 'Admin' }} — SIPMA Universitas Mega Buana Palopo</title>
+
+    {{-- Google Font: Quicksand --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+
+    {{-- Google Material Symbols Outlined --}}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full font-sans antialiased text-slate-800">
-    <div class="min-h-full flex">
-        {{-- Sidebar --}}
-        <aside class="w-64 bg-slate-900 text-slate-200 flex flex-col shrink-0">
-            <div class="h-16 flex items-center px-6 border-b border-slate-800 gap-3">
-                <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow">
-                    H
-                </div>
-                <div>
-                    <h1 class="text-sm font-semibold tracking-wide text-white">SIPMA ADMIN</h1>
-                    <p class="text-xs text-slate-400">FIK HIMAKOM</p>
-                </div>
+<body class="h-full font-sans antialiased text-zinc-900 bg-zinc-50">
+
+    {{-- Mobile Sidebar Drawer Backdrop --}}
+    <div id="mobile-sidebar-backdrop"
+         onclick="toggleMobileSidebar()"
+         class="fixed inset-0 bg-zinc-950/60 backdrop-blur-xs z-40 hidden md:hidden transition-opacity"></div>
+
+    <div class="min-h-full flex flex-col md:flex-row">
+
+        {{-- Sidebar (Desktop & Mobile Drawer) --}}
+        <aside id="admin-sidebar"
+               class="fixed inset-y-0 left-0 z-50 w-64 bg-zinc-950 text-zinc-300 flex flex-col shrink-0 -translate-x-full md:translate-x-0 md:sticky md:top-0 md:h-screen md:overflow-y-auto transition-transform duration-200 ease-in-out border-r border-zinc-850 shadow-sm md:shadow-none">
+
+            {{-- Sidebar Brand --}}
+            <div class="h-16 flex items-center justify-between px-5 border-b border-zinc-850">
+                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 group">
+                    <img src="{{ asset('images/logo.png') }}"
+                         alt="Logo UMB Palopo"
+                         class="w-9 h-9 object-contain rounded-full bg-white p-0.5 shadow-xs shrink-0" />
+                    <div class="truncate">
+                        <span class="text-sm font-bold tracking-tight text-white block leading-tight group-hover:text-amber-400 transition">SIPMA ADMIN</span>
+                        <span class="text-[11px] text-amber-400/90 font-medium tracking-wide truncate block">UMB Palopo</span>
+                    </div>
+                </a>
+
+                {{-- Close Button for Mobile Drawer --}}
+                <button type="button"
+                        onclick="toggleMobileSidebar()"
+                        class="md:hidden p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
             </div>
 
+            {{-- Navigation Menu with Google Material Icons --}}
             <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
                 <a href="{{ route('admin.dashboard') }}"
-                   class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('admin.dashboard') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                    </svg>
+                   class="flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition {{ request()->routeIs('admin.dashboard') ? 'bg-zinc-900 text-amber-400 border-l-2 border-amber-400 shadow-xs' : 'text-zinc-400 hover:bg-zinc-900/70 hover:text-zinc-100' }}">
+                    <span class="material-symbols-outlined text-[18px]">dashboard</span>
                     Dashboard
                 </a>
 
                 @if (auth()->user()->isAdmin())
-                    <div class="pt-3 pb-1 px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Master Data</div>
+                    <div class="pt-4 pb-1.5 px-3 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Master Data</div>
 
                     <a href="{{ route('admin.students.index') }}"
-                       class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('admin.students.*') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                        </svg>
+                       class="flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition {{ request()->routeIs('admin.students.*') ? 'bg-zinc-900 text-amber-400 border-l-2 border-amber-400 shadow-xs' : 'text-zinc-400 hover:bg-zinc-900/70 hover:text-zinc-100' }}">
+                        <span class="material-symbols-outlined text-[18px]">group</span>
                         Data Mahasiswa
                     </a>
 
                     <a href="{{ route('admin.voters.index') }}"
-                       class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('admin.voters.*') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
+                       class="flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition {{ request()->routeIs('admin.voters.*') ? 'bg-zinc-900 text-amber-400 border-l-2 border-amber-400 shadow-xs' : 'text-zinc-400 hover:bg-zinc-900/70 hover:text-zinc-100' }}">
+                        <span class="material-symbols-outlined text-[18px]">how_to_vote</span>
                         Daftar Pemilih (DPT)
                     </a>
 
-                    <div class="pt-3 pb-1 px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Pemilihan</div>
+                    <div class="pt-4 pb-1.5 px-3 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Pemilihan</div>
 
                     <a href="{{ route('admin.elections.index') }}"
-                       class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('admin.elections.*') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
+                       class="flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition {{ request()->routeIs('admin.elections.*') ? 'bg-zinc-900 text-amber-400 border-l-2 border-amber-400 shadow-xs' : 'text-zinc-400 hover:bg-zinc-900/70 hover:text-zinc-100' }}">
+                        <span class="material-symbols-outlined text-[18px]">event_available</span>
                         Periode Pemilihan
                     </a>
 
                     <a href="{{ route('admin.registrations.index') }}"
-                       class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('admin.registrations.*') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
+                       class="flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition {{ request()->routeIs('admin.registrations.*') ? 'bg-zinc-900 text-amber-400 border-l-2 border-amber-400 shadow-xs' : 'text-zinc-400 hover:bg-zinc-900/70 hover:text-zinc-100' }}">
+                        <span class="material-symbols-outlined text-[18px]">assignment_turned_in</span>
                         Verifikasi Bakal Calon
                     </a>
 
                     <a href="{{ route('admin.candidates.index') }}"
-                       class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('admin.candidates.*') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
+                       class="flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition {{ request()->routeIs('admin.candidates.*') ? 'bg-zinc-900 text-amber-400 border-l-2 border-amber-400 shadow-xs' : 'text-zinc-400 hover:bg-zinc-900/70 hover:text-zinc-100' }}">
+                        <span class="material-symbols-outlined text-[18px]">badge</span>
                         Calon Resmi
                     </a>
                 @endif
 
-                <div class="pt-3 pb-1 px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Pemungutan &amp; Hasil</div>
+                <div class="pt-4 pb-1.5 px-3 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Pemungutan &amp; Hasil</div>
 
                 <a href="{{ route('admin.voting-monitor') }}"
-                   class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('admin.voting-monitor') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
+                   class="flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition {{ request()->routeIs('admin.voting-monitor') ? 'bg-zinc-900 text-amber-400 border-l-2 border-amber-400 shadow-xs' : 'text-zinc-400 hover:bg-zinc-900/70 hover:text-zinc-100' }}">
+                    <span class="material-symbols-outlined text-[18px]">monitoring</span>
                     Monitoring Partisipasi
                 </a>
 
                 <a href="{{ route('admin.results.index') }}"
-                   class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('admin.results.*') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
+                   class="flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition {{ request()->routeIs('admin.results.*') ? 'bg-zinc-900 text-amber-400 border-l-2 border-amber-400 shadow-xs' : 'text-zinc-400 hover:bg-zinc-900/70 hover:text-zinc-100' }}">
+                    <span class="material-symbols-outlined text-[18px]">leaderboard</span>
                     Hasil Pemilihan
                 </a>
 
-                <div class="pt-3 pb-1 px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Pengawasan</div>
+                <div class="pt-4 pb-1.5 px-3 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Pengawasan</div>
 
                 <a href="{{ route('admin.audit-logs.index') }}"
-                   class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('admin.audit-logs.*') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                    </svg>
+                   class="flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition {{ request()->routeIs('admin.audit-logs.*') ? 'bg-zinc-900 text-amber-400 border-l-2 border-amber-400 shadow-xs' : 'text-zinc-400 hover:bg-zinc-900/70 hover:text-zinc-100' }}">
+                    <span class="material-symbols-outlined text-[18px]">verified_user</span>
                     Audit Log
                 </a>
 
                 @if (auth()->user()->role === 'super_admin')
                     <a href="{{ route('admin.settings.index') }}"
-                       class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition {{ request()->routeIs('admin.settings.*') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
+                       class="flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition {{ request()->routeIs('admin.settings.*') ? 'bg-zinc-900 text-amber-400 border-l-2 border-amber-400 shadow-xs' : 'text-zinc-400 hover:bg-zinc-900/70 hover:text-zinc-100' }}">
+                        <span class="material-symbols-outlined text-[18px]">settings</span>
                         Pengaturan Sistem
                     </a>
                 @endif
             </nav>
 
-
-            <div class="p-4 border-t border-slate-800 flex items-center justify-between">
-                <div class="truncate">
-                    <div class="text-xs font-semibold text-white truncate">{{ auth()->user()->name }}</div>
-                    <div class="text-xs text-slate-400 truncate">{{ auth()->user()->email }}</div>
+            {{-- Sidebar Footer / User Info --}}
+            <div class="p-3 border-t border-zinc-850 flex items-center justify-between bg-zinc-950/80">
+                <div class="truncate pr-2">
+                    <div class="text-xs font-bold text-white truncate">{{ auth()->user()->name }}</div>
+                    <div class="text-[11px] text-amber-400 font-mono tracking-tight capitalize">{{ str_replace('_', ' ', auth()->user()->role) }}</div>
                 </div>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" title="Keluar" class="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-slate-800 transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                        </svg>
+                    <button type="submit" title="Keluar" class="p-1.5 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-zinc-900 transition flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[18px]">logout</span>
                     </button>
                 </form>
             </div>
         </aside>
 
-        {{-- Main Area --}}
+        {{-- Main Content Area --}}
         <div class="flex-1 flex flex-col min-w-0">
-            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
-                <h2 class="text-lg font-semibold text-slate-800">{{ $header ?? $title ?? 'Panel Admin' }}</h2>
-                <div class="flex items-center gap-4">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {{ strtoupper(auth()->user()->role) }}
+
+            {{-- Top Header --}}
+            <header class="h-16 bg-white border-b border-zinc-200 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-30">
+                <div class="flex items-center gap-3">
+                    {{-- Mobile Hamburger Button --}}
+                    <button type="button"
+                            onclick="toggleMobileSidebar()"
+                            class="md:hidden p-2 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 transition flex items-center justify-center"
+                            aria-label="Buka Menu">
+                        <span class="material-symbols-outlined text-[22px]">menu</span>
+                    </button>
+
+                    <h2 class="text-sm sm:text-base font-bold text-zinc-900 truncate">
+                        {{ $header ?? $title ?? 'Panel Admin' }}
+                    </h2>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <span class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold bg-amber-50 text-amber-900 border border-amber-200">
+                        {{ strtoupper(str_replace('_', ' ', auth()->user()->role)) }}
                     </span>
-                    <a href="{{ route('check-voter') }}" target="_blank" class="text-xs text-slate-500 hover:text-blue-600 flex items-center gap-1 transition">
-                        <span>Portal Cek DPT</span>
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                        </svg>
+
+                    <a href="{{ route('check-voter') }}" target="_blank"
+                       class="text-xs font-bold text-zinc-700 hover:text-zinc-950 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-50 transition">
+                        <span>Portal Publik</span>
+                        <span class="material-symbols-outlined text-[16px] text-zinc-400">open_in_new</span>
                     </a>
                 </div>
             </header>
 
-            <main class="flex-1 p-8 overflow-y-auto">
+            {{-- Main Body --}}
+            <main class="flex-1 p-4 sm:p-8 overflow-y-auto">
                 @if (session('success'))
-                    <div class="mb-6 rounded-lg bg-emerald-50 border border-emerald-200 p-4 flex items-center gap-3 text-emerald-800 text-sm">
-                        <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
+                    <div class="mb-6 rounded-xl bg-emerald-50 border border-emerald-200 p-4 flex items-center gap-3 text-emerald-900 text-xs sm:text-sm font-medium">
+                        <span class="material-symbols-outlined text-emerald-600 text-[20px]">check_circle</span>
                         <span>{{ session('success') }}</span>
                     </div>
                 @endif
 
                 @if ($errors->any())
-                    <div class="mb-6 rounded-lg bg-rose-50 border border-rose-200 p-4 flex items-start gap-3 text-rose-800 text-sm">
-                        <svg class="w-5 h-5 text-rose-500 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                        </svg>
+                    <div class="mb-6 rounded-xl bg-rose-50 border border-rose-200 p-4 flex items-start gap-3 text-rose-900 text-xs sm:text-sm">
+                        <span class="material-symbols-outlined text-rose-500 text-[20px] mt-0.5">error</span>
                         <div class="space-y-1">
                             @foreach ($errors->all() as $err)
                                 <p>{{ $err }}</p>
@@ -177,5 +195,20 @@
             </main>
         </div>
     </div>
+
+    {{-- Script for Mobile Sidebar Toggle --}}
+    <script>
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('admin-sidebar');
+            const backdrop = document.getElementById('mobile-sidebar-backdrop');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+    </script>
 </body>
 </html>

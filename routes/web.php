@@ -71,7 +71,7 @@ Route::middleware(['auth', 'active'])->group(function () {
 });
 
 // ─── Admin & Super Admin & Dosen Pendamping ───────────────────────────────────
-Route::middleware(['auth', 'active'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'active', 'can:access-admin'])->prefix('admin')->name('admin.')->group(function () {
 
     // Dashboard (accessible by admin, super_admin, dosen_pendamping)
     Route::get('/dashboard', function () {

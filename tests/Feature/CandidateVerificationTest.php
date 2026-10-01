@@ -126,4 +126,34 @@ class CandidateVerificationTest extends TestCase
             'candidate_number' => 1,
         ]);
     }
+
+    public function test_student_can_view_candidate_registration_detail_and_history(): void
+    {
+        $studentUser = User::factory()->create([
+            'role' => 'student',
+            'student_id' => $this->chairman->id,
+            'active' => true,
+        ]);
+
+        $reg = CandidateRegistration::create([
+            'election_id' => $this->election->id,
+            'chairman_student_id' => $this->chairman->id,
+            'vice_chairman_student_id' => $this->viceChairman->id,
+            'status' => RegistrationStatus::Draft,
+            'registration_number' => 'BC-2026-0002',
+        ]);
+
+        $reg->histories()->create([
+            'status_from' => null,
+            'status_to' => 'draft',
+            'notes' => 'Draft pendaftaran dibuat.',
+            'changed_by_user_id' => $studentUser->id,
+        ]);
+
+        $response = $this->actingAs($studentUser)->get(route('registration.show', $reg));
+
+        $response->assertOk();
+        $response->assertSee('Riwayat Status');
+        $response->assertSee('Draft');
+    }
 }
