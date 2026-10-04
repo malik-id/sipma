@@ -202,4 +202,48 @@ class CandidateVerificationTest extends TestCase
         $downloadResponse = $this->actingAs($this->adminUser)->get(route('admin.registrations.download-document', $doc));
         $downloadResponse->assertOk();
     }
+
+    public function test_student_can_view_and_download_own_registration_document(): void
+    {
+        Storage::fake('local');
+        $file = UploadedFile::fake()->create('berkas_saya.pdf', 100, 'application/pdf');
+        $storedPath = $file->store('registrations/2', 'local');
+
+        $studentUser = User::factory()->create([
+            'role' => 'student',
+            'student_id' => $this->chairman->id,
+            'active' => true,
+        ]);
+
+        $req = $this->election->requirements()->create([
+            'name' => 'Surat Rekomendasi',
+            'type' => 'file',
+            'required' => true,
+            'active' => true,
+        ]);
+
+        $reg = CandidateRegistration::create([
+            'election_id' => $this->election->id,
+            'chairman_student_id' => $this->chairman->id,
+            'vice_chairman_student_id' => $this->viceChairman->id,
+            'status' => RegistrationStatus::Draft,
+            'registration_number' => 'BC-2026-0004',
+        ]);
+
+        $doc = $reg->documents()->create([
+            'requirement_id' => $req->id,
+            'document_type' => 'file',
+            'file_path' => $storedPath,
+            'original_filename' => 'berkas_saya.pdf',
+            'mime_type' => 'application/pdf',
+            'file_size' => 102400,
+            'version' => 1,
+        ]);
+
+        $viewDocResponse = $this->actingAs($studentUser)->get(route('registration.view-document', [$reg, $doc]));
+        $viewDocResponse->assertOk();
+
+        $downloadResponse = $this->actingAs($studentUser)->get(route('registration.download-document', [$reg, $doc]));
+        $downloadResponse->assertOk();
+    }
 }

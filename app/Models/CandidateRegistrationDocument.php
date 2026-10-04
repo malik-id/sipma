@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class CandidateRegistrationDocument extends Model
 {
@@ -24,5 +25,11 @@ class CandidateRegistrationDocument extends Model
     public function requirement()
     {
         return $this->belongsTo(CandidateRequirement::class, 'requirement_id');
+    }
+
+    public function fileExists(): bool
+    {
+        return Storage::disk('local')->exists($this->file_path)
+            || Storage::disk('public')->exists($this->file_path);
     }
 }

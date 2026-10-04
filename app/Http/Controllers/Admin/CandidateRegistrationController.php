@@ -197,7 +197,7 @@ class CandidateRegistrationController extends Controller
             ->with('success', "Pendaftaran bakal calon '{$regNumber}' berhasil dihapus.");
     }
 
-    public function viewDocument(CandidateRegistrationDocument $document): Response
+    public function viewDocument(CandidateRegistrationDocument $document): Response|RedirectResponse
     {
         Gate::authorize('review-registrations');
 
@@ -213,10 +213,10 @@ class CandidateRegistrationController extends Controller
             ]);
         }
 
-        abort(404, 'File dokumen tidak ditemukan di penyimpanan server.');
+        return back()->with('error', "File fisik '{$document->original_filename}' tidak ditemukan di penyimpanan server (mungkin terhapus saat reset data). Silakan minta calon kandidat untuk mengunggah ulang berkas tersebut.");
     }
 
-    public function downloadDocument(CandidateRegistrationDocument $document): StreamedResponse
+    public function downloadDocument(CandidateRegistrationDocument $document): Response|StreamedResponse|RedirectResponse
     {
         Gate::authorize('review-registrations');
 
@@ -228,6 +228,6 @@ class CandidateRegistrationController extends Controller
             return Storage::disk('public')->download($document->file_path, $document->original_filename);
         }
 
-        abort(404, 'File dokumen tidak ditemukan di penyimpanan server.');
+        return back()->with('error', "File fisik '{$document->original_filename}' tidak ditemukan di penyimpanan server (mungkin terhapus saat reset data). Silakan minta calon kandidat untuk mengunggah ulang berkas tersebut.");
     }
 }

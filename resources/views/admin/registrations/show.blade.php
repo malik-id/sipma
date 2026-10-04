@@ -237,12 +237,18 @@
 
                             {{-- Info File Tambahan --}}
                             @if ($doc)
-                                <div class="mt-2 text-xs text-zinc-500 flex items-center gap-2 bg-zinc-50 px-3 py-1.5 rounded-lg border border-zinc-100">
+                                <div class="mt-2 text-xs text-zinc-500 flex flex-wrap items-center gap-2 bg-zinc-50 px-3 py-1.5 rounded-lg border border-zinc-100">
                                     <span class="font-mono text-zinc-700 truncate max-w-sm">{{ $doc->original_filename }}</span>
                                     <span>&bull;</span>
                                     <span>{{ number_format($doc->file_size / 1024, 1) }} KB</span>
                                     <span>&bull;</span>
                                     <span class="text-zinc-400">Versi {{ $doc->version }}</span>
+                                    @if (! $doc->fileExists())
+                                        <span class="ml-auto inline-flex items-center gap-1 text-[11px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                                            <span class="material-symbols-outlined text-xs">warning</span>
+                                            <span>File fisik tidak ada di server (perlu diunggah ulang)</span>
+                                        </span>
+                                    @endif
                                 </div>
                             @elseif ($req->type === 'text' && $answer)
                                 <div class="mt-2 text-xs text-zinc-700 bg-zinc-50 p-3 rounded-lg border border-zinc-100 leading-relaxed">

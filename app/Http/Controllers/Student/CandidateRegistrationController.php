@@ -14,6 +14,7 @@ use App\Models\Election;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
@@ -238,7 +239,7 @@ class CandidateRegistrationController extends Controller
         return back()->with('success', 'Foto pasangan calon berhasil diperbarui.');
     }
 
-    public function viewDocument(CandidateRegistration $registration, CandidateRegistrationDocument $document): Response
+    public function viewDocument(CandidateRegistration $registration, CandidateRegistrationDocument $document): Response|RedirectResponse
     {
         Gate::authorize('view', $registration);
         abort_unless($document->candidate_registration_id === $registration->id, 403);
@@ -255,10 +256,10 @@ class CandidateRegistrationController extends Controller
             ]);
         }
 
-        abort(404, 'File dokumen tidak ditemukan di penyimpanan server.');
+        return back()->with('error', "File '{$document->original_filename}' tidak ditemukan di server. Silakan unggah ulang dokumen Anda.");
     }
 
-    public function downloadDocument(CandidateRegistration $registration, CandidateRegistrationDocument $document): Response
+    public function downloadDocument(CandidateRegistration $registration, CandidateRegistrationDocument $document): Response|RedirectResponse
     {
         Gate::authorize('view', $registration);
         abort_unless($document->candidate_registration_id === $registration->id, 403);
@@ -271,6 +272,6 @@ class CandidateRegistrationController extends Controller
             return Storage::disk('public')->download($document->file_path, $document->original_filename);
         }
 
-        abort(404, 'File dokumen tidak ditemukan di penyimpanan server.');
+        return back()->with('error', "File '{$document->original_filename}' tidak ditemukan di server. Silakan unggah ulang dokumen Anda.");
     }
 }

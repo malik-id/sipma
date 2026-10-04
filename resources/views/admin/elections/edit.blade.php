@@ -173,6 +173,7 @@
                         <div class="space-y-1">
                             <label for="voting_start" class="block text-xs font-semibold text-zinc-700">
                                 Mulai Pemungutan Suara (Buka TPS Online) <span class="text-rose-500">*</span>
+                                <span class="text-[10px] text-amber-600 font-bold ml-1">(WITA / UTC+8)</span>
                             </label>
                             <input
                                 type="datetime-local"
@@ -180,6 +181,7 @@
                                 name="voting_start"
                                 value="{{ old('voting_start', $election->voting_start?->format('Y-m-d\TH:i')) }}"
                                 required
+                                onchange="calculateVotingDuration()"
                                 class="w-full px-4 py-2 text-sm bg-white border border-zinc-300 rounded-xl focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
                             />
                         </div>
@@ -187,6 +189,7 @@
                         <div class="space-y-1">
                             <label for="voting_end" class="block text-xs font-semibold text-zinc-700">
                                 Selesai Pemungutan Suara (Tutup TPS Online) <span class="text-rose-500">*</span>
+                                <span class="text-[10px] text-amber-600 font-bold ml-1">(WITA / UTC+8)</span>
                             </label>
                             <input
                                 type="datetime-local"
@@ -194,14 +197,39 @@
                                 name="voting_end"
                                 value="{{ old('voting_end', $election->voting_end?->format('Y-m-d\TH:i')) }}"
                                 required
+                                onchange="calculateVotingDuration()"
                                 class="w-full px-4 py-2 text-sm bg-white border border-zinc-300 rounded-xl focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
                             />
                         </div>
 
+                        {{-- Live Duration Info & Quick Presets --}}
+                        <div class="sm:col-span-2 bg-amber-50/70 border border-amber-200/80 rounded-xl p-3.5 space-y-2">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                                <div class="flex items-center gap-1.5 text-zinc-800 font-bold">
+                                    <span class="material-symbols-outlined text-amber-600 text-base">timer</span>
+                                    <span>Pratinjau Durasi Voting:</span>
+                                    <span id="voting_duration_preview" class="text-amber-800 font-mono font-extrabold bg-white px-2 py-0.5 rounded border border-amber-200">Menghitung...</span>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
+                                    <span class="text-zinc-500">Preset Cepat:</span>
+                                    <button type="button" onclick="setVotingQuickPreset(1)" class="px-2 py-1 bg-white hover:bg-amber-100 text-zinc-800 font-semibold rounded border border-zinc-200 transition">+1 Jam</button>
+                                    <button type="button" onclick="setVotingQuickPreset(2)" class="px-2 py-1 bg-white hover:bg-amber-100 text-zinc-800 font-semibold rounded border border-zinc-200 transition">+2 Jam</button>
+                                    <button type="button" onclick="setVotingQuickPreset(8)" class="px-2 py-1 bg-white hover:bg-amber-100 text-zinc-800 font-semibold rounded border border-zinc-200 transition">+8 Jam</button>
+                                    <button type="button" onclick="setVotingQuickPreset(24)" class="px-2 py-1 bg-white hover:bg-amber-100 text-zinc-800 font-semibold rounded border border-zinc-200 transition">+1 Hari</button>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="space-y-1 sm:col-span-2">
-                            <label for="result_publish_at" class="block text-xs font-semibold text-zinc-700">
-                                Tanggal Publikasi Hasil Resmi Rekapitulasi
-                            </label>
+                            <div class="flex items-center justify-between">
+                                <label for="result_publish_at" class="block text-xs font-semibold text-zinc-700">
+                                    Tanggal &amp; Waktu Publikasi Hasil Resmi Rekapitulasi
+                                    <span class="text-[10px] text-amber-600 font-bold ml-1">(WITA / UTC+8)</span>
+                                </label>
+                                <button type="button" onclick="matchPublishWithVotingEnd()" class="text-[11px] text-amber-700 hover:text-amber-800 font-bold transition">
+                                    ⚡ Samakan dengan Waktu Tutup Voting
+                                </button>
+                            </div>
                             <input
                                 type="datetime-local"
                                 id="result_publish_at"
@@ -209,6 +237,7 @@
                                 value="{{ old('result_publish_at', $election->result_publish_at?->format('Y-m-d\TH:i')) }}"
                                 class="w-full sm:w-1/2 px-4 py-2 text-sm bg-white border border-zinc-300 rounded-xl focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
                             />
+                            <p class="text-xs text-zinc-400 mt-1">Hasil voting tidak akan ditampilkan ke publik sebelum tanggal &amp; jam ini tercapai (atau saat panitia mengklik 'Publikasikan Sekarang').</p>
                         </div>
                     </div>
                 </div>
@@ -226,5 +255,85 @@
             </form>
         </div>
     </div>
+
+    <script>
+        function calculateVotingDuration() {
+            const startInput = document.getElementById('voting_start');
+            const endInput = document.getElementById('voting_end');
+            const preview = document.getElementById('voting_duration_preview');
+            if (!startInput || !endInput || !preview) return;
+
+            const start = new Date(startInput.value);
+            const end = new Date(endInput.value);
+
+            if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+                preview.textContent = 'Waktu belum valid';
+                return;
+            }
+
+            const diffMs = end - start;
+            if (diffMs <= 0) {
+                preview.textContent = '⚠ Waktu selesai harus lebih lambat dari waktu mulai';
+                preview.className = 'text-rose-700 font-mono font-extrabold bg-rose-50 px-2 py-0.5 rounded border border-rose-200';
+                return;
+            }
+
+            preview.className = 'text-amber-900 font-mono font-extrabold bg-white px-2 py-0.5 rounded border border-amber-200';
+
+            const totalMins = Math.floor(diffMs / (1000 * 60));
+            const days = Math.floor(totalMins / (60 * 24));
+            const hours = Math.floor((totalMins % (60 * 24)) / 60);
+            const mins = totalMins % 60;
+
+            let parts = [];
+            if (days > 0) parts.push(days + ' hari');
+            if (hours > 0) parts.push(hours + ' jam');
+            if (mins > 0 || parts.length === 0) parts.push(mins + ' menit');
+
+            preview.textContent = parts.join(' ') + ' (' + formatTimeOfDay(start) + ' s/d ' + formatTimeOfDay(end) + ')';
+        }
+
+        function formatTimeOfDay(date) {
+            const h = date.getHours().toString().padStart(2, '0');
+            const m = date.getMinutes().toString().padStart(2, '0');
+            const period = date.getHours() < 12 ? 'Pagi' : (date.getHours() < 15 ? 'Siang' : (date.getHours() < 18 ? 'Sore' : 'Malam'));
+            return `${h}:${m} ${period}`;
+        }
+
+        function setVotingQuickPreset(hours) {
+            const startInput = document.getElementById('voting_start');
+            const endInput = document.getElementById('voting_end');
+            if (!startInput || !endInput) return;
+
+            let start = new Date(startInput.value);
+            if (isNaN(start.getTime())) {
+                start = new Date();
+                startInput.value = formatDateTimeLocal(start);
+            }
+
+            const end = new Date(start.getTime() + hours * 60 * 60 * 1000);
+            endInput.value = formatDateTimeLocal(end);
+            calculateVotingDuration();
+        }
+
+        function matchPublishWithVotingEnd() {
+            const endInput = document.getElementById('voting_end');
+            const pubInput = document.getElementById('result_publish_at');
+            if (endInput && pubInput && endInput.value) {
+                pubInput.value = endInput.value;
+            }
+        }
+
+        function formatDateTimeLocal(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', calculateVotingDuration);
+    </script>
 
 </x-layouts.admin>
