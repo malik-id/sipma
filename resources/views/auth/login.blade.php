@@ -40,13 +40,57 @@
         </p>
     </div>
 
-    {{-- Link ke halaman admin --}}
+    {{-- Helpdesk / Kontak Admin Langsung --}}
+    @php
+        $contactPhone = \App\Models\SystemSetting::get('contact_phone', '081234567890');
+        $contactEmail = \App\Models\SystemSetting::get('contact_email', 'kpu@megabuana.ac.id');
+        $cleanPhone = preg_replace('/[^0-9]/', '', (string) $contactPhone);
+        if (str_starts_with($cleanPhone, '0')) {
+            $cleanPhone = '62' . substr($cleanPhone, 1);
+        }
+        $waLoginText = rawurlencode("Halo Panitia KPU SIPMA UMB, saya mengalami kendala saat ingin login ke portal mahasiswa / belum terdaftar. Mohon bantuannya.");
+        $waUrl = !empty($cleanPhone) ? "https://wa.me/{$cleanPhone}?text={$waLoginText}" : null;
+    @endphp
+
+    <div class="mt-6 p-4 rounded-2xl bg-zinc-50 border border-zinc-200/80 text-left">
+        <div class="flex items-start gap-2.5">
+            <span class="material-symbols-outlined text-amber-500 text-lg shrink-0 mt-0.5">contact_support</span>
+            <div class="flex-1 min-w-0">
+                <h4 class="text-xs font-bold text-zinc-900">Belum Terdaftar / Butuh Bantuan?</h4>
+                <p class="text-[11px] text-zinc-500 mt-0.5 leading-relaxed">
+                    Jika akun Anda belum terdaftar atau mengalami kendala, silakan hubungi panitia secara langsung:
+                </p>
+
+                <div class="mt-3 flex flex-col sm:flex-row gap-2">
+                    @if ($waUrl)
+                        <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer"
+                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-2xs">
+                            <span class="material-symbols-outlined text-sm">chat</span>
+                            <span>WhatsApp Panitia</span>
+                        </a>
+                    @endif
+
+                    @if ($contactEmail)
+                        <a href="mailto:{{ $contactEmail }}?subject={{ rawurlencode('Bantuan Login SIPMA UMB') }}"
+                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-zinc-100 text-zinc-700 border border-zinc-300 rounded-xl text-xs font-bold transition shadow-2xs">
+                            <span class="material-symbols-outlined text-sm">mail</span>
+                            <span>Kirim Email</span>
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Link ke halaman admin & Beranda --}}
     <div class="mt-6 pt-4 border-t border-zinc-100 text-center flex items-center justify-between text-xs">
-        <a href="{{ route('home') }}" class="text-zinc-500 hover:text-zinc-900 transition font-medium">
-            &larr; Beranda
+        <a href="{{ route('home') }}" class="text-zinc-500 hover:text-zinc-900 transition font-medium flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">arrow_back</span>
+            <span>Beranda</span>
         </a>
-        <a href="{{ route('admin.login') }}" class="text-amber-600 hover:text-amber-700 font-semibold transition">
-            Login Panitia &rarr;
+        <a href="{{ route('admin.login') }}" class="text-amber-600 hover:text-amber-700 font-semibold transition flex items-center gap-1">
+            <span>Login Panitia</span>
+            <span class="material-symbols-outlined text-sm">arrow_forward</span>
         </a>
     </div>
 

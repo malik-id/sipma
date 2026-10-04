@@ -155,56 +155,53 @@
 
                             {{-- Foto Pasangan --}}
                             <div class="p-6">
-                                <div class="w-full h-52 rounded-xl bg-zinc-100 border border-zinc-200 overflow-hidden mb-5 flex items-center justify-center">
-                                    @if ($cand->photo_path)
-                                        <img src="{{ asset('storage/' . $cand->photo_path) }}" alt="Pasangan No {{ $cand->candidate_number }}" class="w-full h-full object-cover" />
-                                    @else
-                                        <div class="text-zinc-400 text-xs text-center p-4">
-                                            Foto paslon belum diunggah
+                                <a href="{{ route('public.candidates.show', $cand) }}" class="block group">
+                                    <div class="w-full h-52 rounded-xl bg-zinc-100 border border-zinc-200 overflow-hidden mb-5 flex items-center justify-center relative">
+                                        @if ($cand->photo_path)
+                                            <img src="{{ asset('storage/' . $cand->photo_path) }}" alt="Pasangan No {{ $cand->candidate_number }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                                        @else
+                                            <div class="text-zinc-400 text-xs text-center p-4">
+                                                Foto paslon belum diunggah
+                                            </div>
+                                        @endif
+                                        <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                                            <span class="px-3 py-1.5 bg-amber-500 text-zinc-950 text-xs font-bold rounded-lg shadow">Lihat Profil Lengkap</span>
                                         </div>
-                                    @endif
-                                </div>
+                                    </div>
+                                </a>
 
                                 {{-- Identitas Ketua & Wakil --}}
                                 <div class="space-y-3 pb-4 border-b border-zinc-100">
                                     <div>
                                         <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 block">Calon Ketua</span>
                                         <div class="font-bold text-zinc-900 text-base leading-snug">{{ $cand->chairman->name }}</div>
-                                        <div class="text-xs text-zinc-500">{{ $cand->chairman->study_program }} &bull; Semester {{ $cand->chairman->semester }}</div>
+                                        <div class="text-xs text-zinc-500">{{ $cand->chairman->nim }} &bull; {{ $cand->chairman->study_program }} &bull; Smt {{ $cand->chairman->semester }}</div>
                                     </div>
                                     <div>
                                         <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block">Calon Wakil Ketua</span>
                                         <div class="font-bold text-zinc-900 text-base leading-snug">{{ $cand->viceChairman?->name ?? '—' }}</div>
-                                        <div class="text-xs text-zinc-500">{{ $cand->viceChairman?->study_program ?? '—' }} &bull; Semester {{ $cand->viceChairman?->semester ?? '—' }}</div>
+                                        <div class="text-xs text-zinc-500">{{ $cand->viceChairman?->nim ?? '—' }} &bull; {{ $cand->viceChairman?->study_program ?? '—' }} &bull; Smt {{ $cand->viceChairman?->semester ?? '—' }}</div>
                                     </div>
                                 </div>
 
                                 {{-- Visi --}}
                                 <div class="pt-4">
                                     <span class="text-[11px] font-bold text-zinc-700 uppercase tracking-wider block mb-1">Visi</span>
-                                    <p class="text-xs text-zinc-600 leading-relaxed italic bg-zinc-50 p-3 rounded-lg border border-zinc-100">
-                                        "{{ $cand->vision ?: 'Visi belum dicantumkan.' }}"
+                                    <p class="text-xs text-zinc-600 leading-relaxed italic bg-zinc-50 p-3 rounded-lg border border-zinc-100 line-clamp-3">
+                                        "{{ $cand->vision ?: ($cand->registration?->vision ?: 'Visi belum dicantumkan.') }}"
                                     </p>
                                 </div>
-
-                                {{-- Misi --}}
-                                @if ($cand->mission && count($cand->mission) > 0)
-                                    <div class="pt-4">
-                                        <span class="text-[11px] font-bold text-zinc-700 uppercase tracking-wider block mb-1">Misi</span>
-                                        <ul class="space-y-1 text-xs text-zinc-600 list-disc list-inside">
-                                            @foreach ($cand->mission as $m)
-                                                <li>{{ $m }}</li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                @endif
                             </div>
                         </div>
 
-                        {{-- Footer Action --}}
-                        <div class="p-4 bg-zinc-50 border-t border-zinc-100">
+                        {{-- Footer Actions --}}
+                        <div class="p-4 bg-zinc-50 border-t border-zinc-100 space-y-2">
+                            <a href="{{ route('public.candidates.show', $cand) }}" class="w-full py-2.5 px-4 bg-white hover:bg-zinc-100 text-zinc-900 border border-zinc-200 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-2xs">
+                                <span class="material-symbols-outlined text-base text-amber-500">visibility</span>
+                                <span>Lihat Profil &amp; Detail Paslon</span>
+                            </a>
                             <a href="{{ route('student.voting.index') }}" class="w-full py-2.5 px-4 bg-zinc-950 hover:bg-zinc-800 text-amber-400 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5">
-                                <span>Gunakan Hak Pilih</span> →
+                                <span>Gunakan Hak Pilih</span> &rarr;
                             </a>
                         </div>
                     </div>

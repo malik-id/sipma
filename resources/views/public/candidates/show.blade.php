@@ -106,53 +106,181 @@
         }
     </script>
 
-    <main class="flex-1 py-10 px-4">
-        <div class="max-w-4xl mx-auto space-y-8">
+    <main class="flex-1 py-10 px-4 sm:px-6">
+        <div class="max-w-5xl mx-auto space-y-8">
 
-            {{-- Breadcrumb --}}
-            <div class="flex items-center gap-2 text-xs text-zinc-400">
-                <a href="{{ route('public.candidates.index') }}" class="hover:text-amber-500 transition flex items-center gap-1">
-                    <span class="material-symbols-outlined text-sm">groups</span>
-                    <span>Kandidat</span>
-                </a>
-                <span>/</span>
-                <span class="text-zinc-800 font-bold">Paslon Nomor {{ $candidate->candidate_number }}</span>
-            </div>
-
-            {{-- Hero Card --}}
-            <div class="bg-white rounded-2xl shadow-xs border border-zinc-200 overflow-hidden">
-                <div class="bg-zinc-950 px-8 py-10 text-white flex flex-col sm:flex-row items-start sm:items-center gap-6 border-b border-zinc-800">
-                    @if ($candidate->photo_path)
-                        <img src="{{ Storage::url($candidate->photo_path) }}" alt="Foto Paslon" class="w-24 h-24 rounded-2xl object-cover border-2 border-amber-400 shadow-lg flex-shrink-0">
-                    @else
-                        <div class="w-24 h-24 rounded-2xl bg-zinc-900 border-2 border-amber-400 flex items-center justify-center text-amber-400 font-extrabold text-3xl shadow-lg flex-shrink-0">
-                            {{ $candidate->candidate_number }}
-                        </div>
-                    @endif
-                    <div>
-                        <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-full text-xs font-bold mb-3">
-                            <span class="material-symbols-outlined text-sm">how_to_vote</span>
-                            Pasangan Nomor Urut {{ $candidate->candidate_number }}
-                        </div>
-                        <h1 class="text-2xl sm:text-3xl font-bold leading-tight text-white">
-                            {{ $candidate->chairman->name }}
-                        </h1>
-                        <p class="text-zinc-400 mt-1 font-medium">
-                            &amp; {{ $candidate->viceChairman?->name ?? '—' }}
-                        </p>
-                        <p class="text-zinc-500 text-xs mt-2">
-                            {{ $candidate->chairman->study_program }} &bull; {{ $candidate->election->name }}
-                        </p>
-                    </div>
+            {{-- Breadcrumb & Back --}}
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 text-xs text-zinc-500">
+                    <a href="{{ route('home') }}" class="hover:text-zinc-900 transition">Beranda</a>
+                    <span>/</span>
+                    <a href="{{ route('public.candidates.index') }}" class="hover:text-zinc-900 transition">Kandidat</a>
+                    <span>/</span>
+                    <span class="text-zinc-900 font-bold">Paslon Nomor Urut {{ $candidate->candidate_number }}</span>
                 </div>
 
+                <a href="{{ route('public.candidates.index') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-zinc-600 hover:text-zinc-950 transition">
+                    <span class="material-symbols-outlined text-base">arrow_back</span>
+                    <span>Kembali ke Daftar</span>
+                </a>
+            </div>
+
+            {{-- Header Hero Banner --}}
+            <div class="bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-white rounded-3xl p-6 sm:p-8 border border-zinc-800 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-16 -top-16 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative z-10 flex flex-col md:flex-row items-center gap-6 sm:gap-8">
+                    
+                    {{-- Paslon Photo --}}
+                    <div class="shrink-0">
+                        <div class="w-36 h-44 sm:w-44 sm:h-52 rounded-2xl bg-zinc-800 border-2 border-amber-400 overflow-hidden shadow-2xl flex items-center justify-center relative">
+                            @if ($candidate->photo_path)
+                                <img src="{{ asset('storage/' . $candidate->photo_path) }}" alt="Pasangan Calon No {{ $candidate->candidate_number }}" class="w-full h-full object-cover">
+                            @else
+                                <div class="text-center p-4 text-zinc-400">
+                                    <span class="material-symbols-outlined text-4xl text-zinc-600 block mb-1">person</span>
+                                    <span class="text-xs">Foto Resmi Paslon</span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Header Meta --}}
+                    <div class="flex-1 text-center md:text-left space-y-3">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/40 rounded-full text-xs font-bold">
+                            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                            <span>Pasangan Nomor Urut {{ $candidate->candidate_number }}</span>
+                        </div>
+
+                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                            {{ $candidate->chairman->name }}
+                            @if ($candidate->viceChairman)
+                                <span class="text-amber-400 font-light block text-xl sm:text-2xl mt-1">&amp; {{ $candidate->viceChairman->name }}</span>
+                            @endif
+                        </h1>
+
+                        <p class="text-xs sm:text-sm text-zinc-400 flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-1 pt-1">
+                            <span class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-base text-amber-500">how_to_vote</span>
+                                <span>{{ $candidate->election->name }}</span>
+                            </span>
+                            <span>&bull;</span>
+                            <span class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-base text-emerald-400">verified</span>
+                                <span>Terverifikasi KPU Mahasiswa</span>
+                            </span>
+                        </p>
+
+                        <div class="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-3">
+                            <a href="{{ route('student.voting.index') }}" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold rounded-xl shadow transition inline-flex items-center gap-2">
+                                <span class="material-symbols-outlined text-lg">how_to_vote</span>
+                                <span>Gunakan Hak Suara Sekarang</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Detail Pasangan Calon (Ketua & Wakil) --}}
+            <div>
+                <h2 class="text-sm font-bold uppercase tracking-wider text-zinc-500 mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-amber-600 text-lg">badge</span>
+                    <span>Biodata Pasangan Calon</span>
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {{-- Card Calon Ketua --}}
+                    <div class="bg-white rounded-2xl border border-zinc-200 shadow-xs p-6 hover:border-amber-400 transition">
+                        <div class="flex items-center gap-3 pb-4 border-b border-zinc-100">
+                            <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-2xl">account_circle</span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-600 block">Calon Ketua</span>
+                                <h3 class="text-base font-bold text-zinc-900 leading-snug">{{ $candidate->chairman->name }}</h3>
+                            </div>
+                        </div>
+
+                        <dl class="mt-4 space-y-2.5 text-xs">
+                            <div class="flex items-center justify-between py-1 border-b border-zinc-50">
+                                <dt class="text-zinc-400 font-medium">Nomor Induk Mahasiswa (NIM)</dt>
+                                <dd class="font-mono font-bold text-zinc-800">{{ $candidate->chairman->nim }}</dd>
+                            </div>
+                            <div class="flex items-center justify-between py-1 border-b border-zinc-50">
+                                <dt class="text-zinc-400 font-medium">Program Studi</dt>
+                                <dd class="font-semibold text-zinc-800 text-right">{{ $candidate->chairman->study_program }}</dd>
+                            </div>
+                            <div class="flex items-center justify-between py-1 border-b border-zinc-50">
+                                <dt class="text-zinc-400 font-medium">Angkatan / Semester</dt>
+                                <dd class="font-semibold text-zinc-800">{{ $candidate->chairman->class_year }} / Semester {{ $candidate->chairman->semester }}</dd>
+                            </div>
+                            <div class="flex items-center justify-between py-1 border-b border-zinc-50">
+                                <dt class="text-zinc-400 font-medium">Status Mahasiswa</dt>
+                                <dd class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold {{ $candidate->chairman->isActive() ? 'bg-emerald-100 text-emerald-800' : 'bg-zinc-100 text-zinc-800' }}">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    <span>{{ ucfirst($candidate->chairman->student_status->value ?? 'Aktif') }}</span>
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    {{-- Card Calon Wakil Ketua --}}
+                    <div class="bg-white rounded-2xl border border-zinc-200 shadow-xs p-6 hover:border-amber-400 transition">
+                        <div class="flex items-center gap-3 pb-4 border-b border-zinc-100">
+                            <div class="w-12 h-12 rounded-xl bg-zinc-100 text-zinc-700 flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-2xl">account_circle</span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-extrabold uppercase tracking-widest text-zinc-500 block">Calon Wakil Ketua</span>
+                                <h3 class="text-base font-bold text-zinc-900 leading-snug">{{ $candidate->viceChairman?->name ?? '—' }}</h3>
+                            </div>
+                        </div>
+
+                        @if ($candidate->viceChairman)
+                            <dl class="mt-4 space-y-2.5 text-xs">
+                                <div class="flex items-center justify-between py-1 border-b border-zinc-50">
+                                    <dt class="text-zinc-400 font-medium">Nomor Induk Mahasiswa (NIM)</dt>
+                                    <dd class="font-mono font-bold text-zinc-800">{{ $candidate->viceChairman->nim }}</dd>
+                                </div>
+                                <div class="flex items-center justify-between py-1 border-b border-zinc-50">
+                                    <dt class="text-zinc-400 font-medium">Program Studi</dt>
+                                    <dd class="font-semibold text-zinc-800 text-right">{{ $candidate->viceChairman->study_program }}</dd>
+                                </div>
+                                <div class="flex items-center justify-between py-1 border-b border-zinc-50">
+                                    <dt class="text-zinc-400 font-medium">Angkatan / Semester</dt>
+                                    <dd class="font-semibold text-zinc-800">{{ $candidate->viceChairman->class_year }} / Semester {{ $candidate->viceChairman->semester }}</dd>
+                                </div>
+                                <div class="flex items-center justify-between py-1 border-b border-zinc-50">
+                                    <dt class="text-zinc-400 font-medium">Status Mahasiswa</dt>
+                                    <dd class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold {{ $candidate->viceChairman->isActive() ? 'bg-emerald-100 text-emerald-800' : 'bg-zinc-100 text-zinc-800' }}">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                        <span>{{ ucfirst($candidate->viceChairman->student_status->value ?? 'Aktif') }}</span>
+                                    </dd>
+                                </div>
+                            </dl>
+                        @else
+                            <div class="mt-6 text-center text-xs text-zinc-400 py-6">
+                                Pasangan ini maju sebagai calon tunggal.
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            {{-- Visi & Misi --}}
+            <div class="bg-white rounded-2xl border border-zinc-200 shadow-xs p-6 sm:p-8 space-y-8">
+                
                 {{-- Visi --}}
-                <div class="px-8 py-6 border-b border-zinc-100">
-                    <h2 class="text-xs font-bold text-amber-600 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-base">lightbulb</span>
-                        Visi
+                <div>
+                    <h2 class="text-xs font-bold text-amber-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">lightbulb</span>
+                        <span>Visi Paslon</span>
                     </h2>
-                    <p class="text-zinc-800 leading-relaxed text-sm italic bg-zinc-50 p-4 rounded-xl border border-zinc-100">{{ $candidate->registration?->vision ?? $candidate->vision ?? 'Visi belum dicantumkan.' }}</p>
+                    <div class="relative bg-amber-50/50 border border-amber-200/70 rounded-2xl p-5 sm:p-6">
+                        <span class="material-symbols-outlined text-4xl text-amber-300 absolute right-4 top-4 select-none opacity-50">format_quote</span>
+                        <p class="text-zinc-900 text-sm sm:text-base italic leading-relaxed font-medium">
+                            "{{ $candidate->registration?->vision ?? $candidate->vision ?? 'Visi belum dicantumkan.' }}"
+                        </p>
+                    </div>
                 </div>
 
                 {{-- Misi --}}
@@ -160,35 +288,44 @@
                     $missions = $candidate->registration?->mission ?? $candidate->mission ?? [];
                 @endphp
                 @if (!empty($missions))
-                    <div class="px-8 py-6 border-b border-zinc-100">
-                        <h2 class="text-xs font-bold text-amber-600 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-base">checklist</span>
-                            Misi
+                    <div class="pt-6 border-t border-zinc-100">
+                        <h2 class="text-xs font-bold text-amber-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">format_list_numbered</span>
+                            <span>Misi Paslon</span>
                         </h2>
-                        <ol class="space-y-2">
+                        <div class="space-y-3">
                             @foreach ($missions as $idx => $misi)
-                                <li class="flex gap-3 text-sm text-zinc-700">
-                                    <span class="w-6 h-6 rounded-full bg-amber-500/10 text-amber-600 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">{{ $idx + 1 }}</span>
-                                    <span>{{ $misi }}</span>
-                                </li>
+                                <div class="flex items-start gap-3.5 p-3.5 bg-zinc-50 rounded-xl border border-zinc-100">
+                                    <span class="w-6 h-6 rounded-full bg-amber-500 text-zinc-950 font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                                        {{ $idx + 1 }}
+                                    </span>
+                                    <p class="text-xs sm:text-sm text-zinc-800 leading-relaxed font-medium">
+                                        {{ $misi }}
+                                    </p>
+                                </div>
                             @endforeach
-                        </ol>
+                        </div>
                     </div>
                 @endif
 
-                {{-- Program Kerja --}}
-                @if ($candidate->registration?->programs->isNotEmpty())
-                    <div class="px-8 py-6">
-                        <h2 class="text-xs font-bold text-amber-600 uppercase tracking-widest mb-4 flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-base">work</span>
-                            Program Kerja Unggulan
+                {{-- Program Kerja Unggulan --}}
+                @if ($candidate->registration?->programs && $candidate->registration->programs->isNotEmpty())
+                    <div class="pt-6 border-t border-zinc-100">
+                        <h2 class="text-xs font-bold text-amber-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">star</span>
+                            <span>Program Kerja Unggulan</span>
                         </h2>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             @foreach ($candidate->registration->programs->sortBy('sort_order') as $program)
-                                <div class="bg-zinc-50 border border-zinc-200 rounded-xl p-4">
-                                    <h3 class="font-bold text-zinc-900 text-sm">{{ $program->title }}</h3>
+                                <div class="bg-zinc-50 border border-zinc-200 rounded-xl p-4 sm:p-5 hover:border-amber-300 transition">
+                                    <div class="flex items-center gap-2.5 mb-2">
+                                        <span class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+                                            <span class="material-symbols-outlined text-base">task_alt</span>
+                                        </span>
+                                        <h3 class="font-bold text-zinc-900 text-sm">{{ $program->title }}</h3>
+                                    </div>
                                     @if ($program->description)
-                                        <p class="text-xs text-zinc-500 mt-1 leading-relaxed">{{ $program->description }}</p>
+                                        <p class="text-xs text-zinc-600 leading-relaxed pl-9.5">{{ $program->description }}</p>
                                     @endif
                                 </div>
                             @endforeach
@@ -197,23 +334,22 @@
                 @endif
             </div>
 
-            {{-- Back & Voting CTA --}}
-            <div class="flex flex-col sm:flex-row items-center gap-4 justify-between">
-                <a href="{{ route('public.candidates.index') }}" class="inline-flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900 transition font-bold">
+            {{-- Footer Navigation / Action --}}
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
+                <a href="{{ route('public.candidates.index') }}" class="inline-flex items-center gap-2 text-xs font-bold text-zinc-600 hover:text-zinc-900 transition">
                     <span class="material-symbols-outlined text-base">arrow_back</span>
                     <span>Kembali ke Daftar Kandidat</span>
                 </a>
+
                 @auth
-                    @if (auth()->user()->role === 'student')
-                        <a href="{{ route('student.voting.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 text-sm font-bold rounded-xl shadow-xs transition">
-                            <span class="material-symbols-outlined text-base">how_to_vote</span>
-                            <span>Gunakan Hak Pilih</span>
-                        </a>
-                    @endif
+                    <a href="{{ route('student.voting.index') }}" class="w-full sm:w-auto px-6 py-3 bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold rounded-xl shadow transition inline-flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-base">how_to_vote</span>
+                        <span>Lanjut ke Bilik Suara</span>
+                    </a>
                 @else
-                    <a href="{{ route('login') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 text-sm font-bold rounded-xl shadow-xs transition">
+                    <a href="{{ route('login') }}" class="w-full sm:w-auto px-6 py-3 bg-zinc-950 hover:bg-zinc-800 text-amber-400 text-xs font-bold rounded-xl shadow transition inline-flex items-center justify-center gap-2">
                         <span class="material-symbols-outlined text-base">login</span>
-                        <span>Login untuk Memilih</span>
+                        <span>Masuk untuk Memberikan Suara</span>
                     </a>
                 @endauth
             </div>

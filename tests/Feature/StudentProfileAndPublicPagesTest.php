@@ -89,7 +89,27 @@ class StudentProfileAndPublicPagesTest extends TestCase
         $response->assertOk();
         $response->assertSee('Pasangan Nomor Urut 1');
         $response->assertSee($chairman->name);
+        $response->assertSee($vice->name);
         $response->assertSee('Visi mahasiswa maju');
+        $response->assertSee('Misi satu');
+        $response->assertSee('Misi dua');
+        $response->assertSee('Biodata Pasangan Calon');
+    }
+
+    public function test_login_page_displays_helpdesk_contact_options(): void
+    {
+        $response = $this->get(route('login'));
+        $response->assertOk();
+        $response->assertSee('Belum Terdaftar / Butuh Bantuan?');
+        $response->assertSee('WhatsApp Panitia');
+    }
+
+    public function test_check_voter_displays_helpdesk_contact_when_not_found(): void
+    {
+        $response = $this->get(route('check-voter', ['keyword' => 'NONEXISTENT999']));
+        $response->assertOk();
+        $response->assertSee('Data Mahasiswa Tidak Ditemukan');
+        $response->assertSee('Hubungi Admin via WhatsApp');
     }
 
     public function test_student_can_view_own_profile(): void

@@ -60,15 +60,22 @@
                             </div>
                         </div>
 
-                        {{-- Visi Singkat --}}
+                        {{-- Visi Singkat & Link Detail --}}
                         @if ($cand->vision)
                             <div class="pt-4 text-xs text-zinc-600">
                                 <span class="font-bold text-zinc-900 block mb-1">Visi:</span>
-                                <p class="italic bg-zinc-50 p-2.5 rounded-lg border border-zinc-100 leading-relaxed line-clamp-3">
+                                <p class="italic bg-zinc-50 p-2.5 rounded-lg border border-zinc-100 leading-relaxed line-clamp-2">
                                     "{{ $cand->vision }}"
                                 </p>
                             </div>
                         @endif
+
+                        <div class="mt-3 text-center">
+                            <a href="{{ route('public.candidates.show', $cand) }}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 hover:text-amber-700 transition">
+                                <span class="material-symbols-outlined text-sm">visibility</span>
+                                <span>Lihat Profil &amp; Program Kerja Lengkap &rarr;</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
 

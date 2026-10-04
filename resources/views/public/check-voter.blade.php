@@ -152,37 +152,71 @@
             </div>
 
             {{-- Hasil Pencarian --}}
+            @php
+                $contactPhone = \App\Models\SystemSetting::get('contact_phone', '081234567890');
+                $contactEmail = \App\Models\SystemSetting::get('contact_email', 'kpu@megabuana.ac.id');
+                $cleanPhone = preg_replace('/[^0-9]/', '', (string) $contactPhone);
+                if (str_starts_with($cleanPhone, '0')) {
+                    $cleanPhone = '62' . substr($cleanPhone, 1);
+                }
+            @endphp
+
             @if ($searched)
                 @if (! $student)
                     {{-- Mahasiswa Tidak Ditemukan --}}
-                    <div class="bg-rose-50 border border-rose-200 rounded-2xl p-6 text-center">
-                        <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3">
+                    @php
+                        $waNotFoundMsg = "Halo Panitia KPU SIPMA UMB, saya mengecek status DPT dengan keyword (" . $keyword . ") namun data mahasiswa tidak ditemukan. Mohon bantuannya untuk verifikasi data pemilih saya.";
+                        $waNotFoundUrl = !empty($cleanPhone) ? "https://wa.me/{$cleanPhone}?text=" . rawurlencode($waNotFoundMsg) : null;
+                    @endphp
+                    <div class="bg-rose-50 border border-rose-200 rounded-2xl p-6 text-center shadow-xs">
+                        <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3">
                             <span class="material-symbols-outlined text-2xl">person_off</span>
                         </div>
                         <h3 class="text-sm font-bold text-rose-900">Data Mahasiswa Tidak Ditemukan</h3>
                         <p class="text-xs text-rose-700 mt-1 max-w-md mx-auto">
                             NIM atau email <span class="font-mono font-semibold">{{ $keyword }}</span> belum terdaftar di database master mahasiswa.
                         </p>
-                        <p class="text-[11px] text-rose-600 mt-2">Silakan hubungi panitia pemilihan untuk pendaftaran atau verifikasi identitas.</p>
+                        
+                        <div class="mt-4 pt-4 border-t border-rose-100/80 flex flex-col sm:flex-row items-center justify-center gap-2">
+                            @if ($waNotFoundUrl)
+                                <a href="{{ $waNotFoundUrl }}" target="_blank" rel="noopener noreferrer"
+                                   class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-xs">
+                                    <span class="material-symbols-outlined text-base">chat</span>
+                                    <span>Hubungi Admin via WhatsApp</span>
+                                </a>
+                            @endif
+                            @if ($contactEmail)
+                                <a href="mailto:{{ $contactEmail }}?subject={{ rawurlencode('Kendala Cek DPT SIPMA: ' . $keyword) }}&body={{ rawurlencode($waNotFoundMsg) }}"
+                                   class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white hover:bg-rose-50 text-rose-900 border border-rose-200 rounded-xl text-xs font-semibold transition">
+                                    <span class="material-symbols-outlined text-base text-rose-600">mail</span>
+                                    <span>Kirim Email</span>
+                                </a>
+                            @endif
+                        </div>
                     </div>
                 @else
                     {{-- Mahasiswa Ditemukan --}}
+                    @php
+                        $isEligible = $voter && $voter->voter_status->value === 'eligible';
+                        $waIneligibleMsg = "Halo Panitia KPU SIPMA UMB, nama saya " . $student->name . " (NIM: " . $student->nim . ") mengecek DPT pada pemilihan " . ($selectedElection?->name ?? 'Mahasiswa') . " dengan status: " . ($voter ? $voter->voter_status->value : 'Belum masuk DPT') . ". Mohon bantuannya untuk verifikasi hak pilih saya.";
+                        $waIneligibleUrl = !empty($cleanPhone) ? "https://wa.me/{$cleanPhone}?text=" . rawurlencode($waIneligibleMsg) : null;
+                    @endphp
                     <div class="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden">
                         {{-- Status Banner --}}
-                        <div class="p-5 sm:p-6 border-b border-zinc-100 flex items-center gap-4 {{ $voter && $voter->voter_status->value === 'eligible' ? 'bg-emerald-50/70' : 'bg-amber-50/70' }}">
-                            <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 {{ $voter && $voter->voter_status->value === 'eligible' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
-                                @if ($voter && $voter->voter_status->value === 'eligible')
+                        <div class="p-5 sm:p-6 border-b border-zinc-100 flex items-center gap-4 {{ $isEligible ? 'bg-emerald-50/70' : 'bg-amber-50/70' }}">
+                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 {{ $isEligible ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
+                                @if ($isEligible)
                                     <span class="material-symbols-outlined text-2xl">verified</span>
                                 @else
                                     <span class="material-symbols-outlined text-2xl">info</span>
                                 @endif
                             </div>
                             <div>
-                                <span class="text-[10px] font-bold uppercase tracking-wider {{ $voter && $voter->voter_status->value === 'eligible' ? 'text-emerald-800' : 'text-amber-800' }} block">
+                                <span class="text-[10px] font-bold uppercase tracking-wider {{ $isEligible ? 'text-emerald-800' : 'text-amber-800' }} block">
                                     Status Hak Suara
                                 </span>
                                 <h3 class="text-base font-bold text-zinc-900 mt-0.5">
-                                    @if ($voter && $voter->voter_status->value === 'eligible')
+                                    @if ($isEligible)
                                         Terdaftar sebagai Pemilih (Eligible)
                                     @elseif ($voter && $voter->voter_status->value === 'suspended')
                                         Hak Pilih Ditangguhkan
@@ -231,18 +265,58 @@
                                 </div>
                             </dl>
 
-                            @if ($voter && $voter->voter_status->value === 'eligible')
+                            @if ($isEligible)
                                 <div class="mt-6 pt-5 border-t border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-                                    <p class="text-xs text-zinc-500">Anda dapat menggunakan hak pilih saat periode pemungutan suara dibuka.</p>
-                                    <a href="{{ route('login') }}" class="w-full sm:w-auto text-center px-4 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold rounded-lg transition shadow-sm">
-                                        Masuk &amp; Voting
+                                    <p class="text-xs text-zinc-500">Anda berhak menggunakan hak pilih saat pemungutan suara dibuka.</p>
+                                    <a href="{{ route('login') }}" class="w-full sm:w-auto text-center px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold rounded-xl transition shadow-xs flex items-center justify-center gap-1.5">
+                                        <span class="material-symbols-outlined text-sm">login</span>
+                                        <span>Masuk &amp; Voting</span>
                                     </a>
+                                </div>
+                            @else
+                                <div class="mt-6 pt-5 border-t border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-amber-50/50 p-4 rounded-xl border border-amber-100">
+                                    <div class="text-xs text-amber-900">
+                                        <strong>Merasa berhak memilih namun belum terdaftar di DPT?</strong>
+                                        <p class="text-amber-700 text-[11px] mt-0.5">Hubungi panitia KPU Mahasiswa untuk konfirmasi dan penetapan hak pilih Anda.</p>
+                                    </div>
+                                    @if ($waIneligibleUrl)
+                                        <a href="{{ $waIneligibleUrl }}" target="_blank" rel="noopener noreferrer"
+                                           class="w-full sm:w-auto shrink-0 text-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center justify-center gap-1.5">
+                                            <span class="material-symbols-outlined text-sm">chat</span>
+                                            <span>Chat Panitia WA</span>
+                                        </a>
+                                    @endif
                                 </div>
                             @endif
                         </div>
                     </div>
                 @endif
             @endif
+
+            {{-- Helpdesk Banner --}}
+            <div class="mt-8 p-4 sm:p-5 rounded-2xl bg-white border border-zinc-200 text-left shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-xl">support_agent</span>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-zinc-900">Pusat Bantuan &amp; Helpdesk Pemilihan</h4>
+                        <p class="text-[11px] text-zinc-500 mt-0.5">
+                            Ada pertanyaan seputar DPT, pendaftaran calon, atau tata cara pemungutan suara?
+                        </p>
+                    </div>
+                </div>
+
+                @if (!empty($cleanPhone))
+                    <a href="https://wa.me/{{ $cleanPhone }}?text={{ rawurlencode('Halo Panitia KPU SIPMA UMB, saya ingin menanyakan informasi seputar pemilihan mahasiswa.') }}"
+                       target="_blank" rel="noopener noreferrer"
+                       class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-bold transition shrink-0">
+                        <span class="material-symbols-outlined text-sm text-emerald-400">chat</span>
+                        <span>Hubungi Helpdesk</span>
+                    </a>
+                @endif
+            </div>
+
         </main>
 
         {{-- Footer --}}
