@@ -45,13 +45,23 @@
 
             @if ($registration->status->value === 'under_review')
                 <form method="POST" action="{{ route('admin.registrations.verify', $registration) }}"
-                    onsubmit="return confirm('Apakah Anda yakin semua dokumen dan data sudah valid dan siap diverifikasi?')">
+                    data-confirm="Apakah Anda yakin semua dokumen dan data sudah valid dan siap diverifikasi?">
                     @csrf
                     <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-sm transition">
                         ✓ Verifikasi &amp; Setujui
                     </button>
                 </form>
             @endif
+
+            <form method="POST" action="{{ route('admin.registrations.destroy', $registration) }}"
+                data-confirm="Hapus seluruh berkas dan pendaftaran bakal calon '{{ $registration->registration_number }}' ({{ $registration->chairman->name }})? Tindakan ini tidak dapat dibatalkan.">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="px-3.5 py-2 bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 font-bold text-xs rounded-lg shadow-sm transition inline-flex items-center gap-1.5" title="Hapus Pendaftaran">
+                    <span class="material-symbols-outlined text-[16px]">delete</span>
+                    <span>Hapus</span>
+                </button>
+            </form>
         </div>
     </div>
 

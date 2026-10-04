@@ -106,10 +106,21 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-right">
-                                <a href="{{ route('admin.registrations.show', $reg) }}"
-                                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-950 text-amber-400 hover:bg-zinc-800 rounded-lg text-xs font-bold transition shadow-2xs">
-                                    Periksa Berkas →
-                                </a>
+                                <div class="inline-flex items-center gap-2">
+                                    <a href="{{ route('admin.registrations.show', $reg) }}"
+                                       class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-950 text-amber-400 hover:bg-zinc-800 rounded-lg text-xs font-bold transition shadow-2xs">
+                                        Periksa Berkas →
+                                    </a>
+
+                                    <form method="POST" action="{{ route('admin.registrations.destroy', $reg) }}"
+                                        data-confirm="Hapus pendaftaran bakal calon '{{ $reg->registration_number }}' ({{ $reg->chairman->name }})? Seluruh berkas dan riwayat terkait akan dihapus.">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="p-1.5 text-zinc-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition" title="Hapus Pendaftaran">
+                                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

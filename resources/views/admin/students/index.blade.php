@@ -1,48 +1,87 @@
 <x-layouts.admin title="Data Mahasiswa" header="Master Data Mahasiswa">
 
     {{-- Toolbar & Actions --}}
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
-        <form method="GET" action="{{ route('admin.students.index') }}" class="flex items-center gap-2 flex-1 max-w-md">
-            <div class="relative flex-1">
-                <input
-                    type="text"
-                    name="search"
-                    value="{{ request('search') }}"
-                    placeholder="Cari NIM, Nama, Email, atau Prodi..."
-                    class="w-full pl-9 pr-4 py-2 text-sm bg-white border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 shadow-sm"
-                />
-                <svg class="w-4 h-4 text-zinc-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
+    <div class="space-y-4 mb-6">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-bold text-zinc-900">Data Mahasiswa</h1>
+                <p class="text-xs sm:text-sm text-zinc-500 mt-0.5">Kelola data master mahasiswa, status keaktifan, dan impor data akademik.</p>
             </div>
-            <button type="submit" class="px-3.5 py-2 bg-zinc-950 text-amber-400 text-xs font-bold rounded-lg hover:bg-zinc-800 transition">
-                Cari
-            </button>
-            @if(request('search') || request('status') || request('semester'))
-                <a href="{{ route('admin.students.index') }}" class="px-3 py-2 text-xs text-zinc-600 hover:text-zinc-900 font-medium">Reset</a>
-            @endif
-        </form>
 
-        <div class="flex items-center gap-2">
-            {{-- Tombol Modal Import CSV / Excel --}}
-            <button
-                type="button"
-                onclick="document.getElementById('modal-import').classList.remove('hidden')"
-                class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-zinc-700 bg-white border border-zinc-300 rounded-lg hover:bg-zinc-50 shadow-sm transition">
-                <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-                </svg>
-                Import Excel / CSV
-            </button>
+            <div class="flex items-center gap-2">
+                {{-- Tombol Modal Import CSV / Excel --}}
+                <button
+                    type="button"
+                    onclick="document.getElementById('modal-import').classList.remove('hidden')"
+                    class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-zinc-700 bg-white border border-zinc-300 rounded-lg hover:bg-zinc-50 shadow-sm transition">
+                    <span class="material-symbols-outlined text-[18px] text-zinc-500">upload_file</span>
+                    Import Excel / CSV
+                </button>
 
-            {{-- Tambah Mahasiswa Manual --}}
-            <a href="{{ route('admin.students.create') }}"
-               class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-zinc-950 bg-amber-500 rounded-lg hover:bg-amber-400 shadow-sm transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                Tambah Mahasiswa
-            </a>
+                {{-- Tambah Mahasiswa Manual --}}
+                <a href="{{ route('admin.students.create') }}"
+                   class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-zinc-950 bg-amber-500 rounded-lg hover:bg-amber-400 shadow-sm transition">
+                    <span class="material-symbols-outlined text-[18px]">person_add</span>
+                    Tambah Mahasiswa
+                </a>
+            </div>
+        </div>
+
+        {{-- Filter Box --}}
+        <div class="bg-white rounded-xl border border-zinc-200 p-4 shadow-sm">
+            <form method="GET" action="{{ route('admin.students.index') }}" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                {{-- Search --}}
+                <div class="sm:col-span-2">
+                    <label class="block text-[11px] font-bold text-zinc-600 uppercase tracking-wider mb-1">Pencarian</label>
+                    <div class="relative">
+                        <input
+                            type="text"
+                            name="search"
+                            value="{{ request('search') }}"
+                            placeholder="Cari NIM, Nama, Email..."
+                            class="w-full pl-9 pr-3 py-2 text-xs bg-zinc-50 border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                        />
+                        <span class="material-symbols-outlined text-zinc-400 text-[18px] absolute left-2.5 top-2">search</span>
+                    </div>
+                </div>
+
+                {{-- Filter Angkatan --}}
+                <div>
+                    <label class="block text-[11px] font-bold text-zinc-600 uppercase tracking-wider mb-1">Angkatan</label>
+                    <select name="class_year" onchange="this.form.submit()" class="w-full text-xs font-bold bg-zinc-50 border border-zinc-300 rounded-lg px-3 py-2 text-zinc-700 focus:ring-amber-500 focus:border-amber-500">
+                        <option value="">Semua Angkatan</option>
+                        @foreach ($classYears as $year)
+                            <option value="{{ $year }}" {{ request('class_year') == $year ? 'selected' : '' }}>
+                                Angkatan {{ $year }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Filter Status (Aktif / Nonaktif) --}}
+                <div>
+                    <label class="block text-[11px] font-bold text-zinc-600 uppercase tracking-wider mb-1">Status Mahasiswa</label>
+                    <select name="status" onchange="this.form.submit()" class="w-full text-xs font-bold bg-zinc-50 border border-zinc-300 rounded-lg px-3 py-2 text-zinc-700 focus:ring-amber-500 focus:border-amber-500">
+                        <option value="">Semua Status</option>
+                        <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>✓ Aktif</option>
+                        <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>✕ Nonaktif</option>
+                        <option value="suspended" {{ request('status') === 'suspended' ? 'selected' : '' }}>⚠ Suspended</option>
+                        <option value="graduated" {{ request('status') === 'graduated' ? 'selected' : '' }}>🎓 Lulus</option>
+                    </select>
+                </div>
+
+                {{-- Actions Button --}}
+                <div class="flex items-end gap-2">
+                    <button type="submit" class="flex-1 px-3.5 py-2 bg-zinc-950 text-amber-400 text-xs font-bold rounded-lg hover:bg-zinc-800 transition shadow-sm">
+                        Filter
+                    </button>
+                    @if(request()->hasAny(['search', 'class_year', 'status', 'study_program', 'semester']))
+                        <a href="{{ route('admin.students.index') }}" class="px-3 py-2 text-xs text-zinc-500 hover:text-zinc-800 font-bold bg-zinc-100 rounded-lg hover:bg-zinc-200 transition">
+                            Reset
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
     </div>
 

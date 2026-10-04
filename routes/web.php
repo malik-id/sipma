@@ -113,13 +113,17 @@ Route::middleware(['auth', 'active', 'can:access-admin'])->prefix('admin')->name
     Route::post('pendaftaran-bakal-calon/{registration}/verify', [AdminCandidateRegistrationController::class, 'verify'])->name('registrations.verify');
     Route::post('pendaftaran-bakal-calon/{registration}/revision', [AdminCandidateRegistrationController::class, 'requestRevision'])->name('registrations.request-revision');
     Route::post('pendaftaran-bakal-calon/{registration}/reject', [AdminCandidateRegistrationController::class, 'reject'])->name('registrations.reject');
+    Route::delete('pendaftaran-bakal-calon/{registration}', [AdminCandidateRegistrationController::class, 'destroy'])->name('registrations.destroy');
     Route::get('pendaftaran-bakal-calon/dokumen/{document}/download', [AdminCandidateRegistrationController::class, 'downloadDocument'])->name('registrations.download-document');
 
     // Calon Resmi
     Route::get('kandidat', [AdminCandidateController::class, 'index'])->name('candidates.index');
+    Route::get('kandidat/tambah', [AdminCandidateController::class, 'create'])->name('candidates.create');
+    Route::post('kandidat', [AdminCandidateController::class, 'store'])->name('candidates.store');
     Route::post('kandidat/{registration}/tetapkan', [AdminCandidateController::class, 'establish'])->name('candidates.establish');
     Route::post('kandidat/{candidate}/nomor-urut', [AdminCandidateController::class, 'assignNumber'])->name('candidates.assign-number');
     Route::post('kandidat/{candidate}/status', [AdminCandidateController::class, 'toggleStatus'])->name('candidates.toggle-status');
+    Route::delete('kandidat/{candidate}', [AdminCandidateController::class, 'destroy'])->name('candidates.destroy');
 
     // Monitoring Voting Real-Time
     Route::get('voting-monitor', [VotingMonitorController::class, 'index'])->name('voting-monitor');
@@ -136,4 +140,5 @@ Route::middleware(['auth', 'active', 'can:access-admin'])->prefix('admin')->name
     // Pengaturan Sistem (super_admin only — gated inside controller)
     Route::get('settings', [SystemSettingController::class, 'index'])->name('settings.index');
     Route::post('settings', [SystemSettingController::class, 'update'])->name('settings.update');
+    Route::post('settings/reset', [SystemSettingController::class, 'reset'])->name('settings.reset');
 });

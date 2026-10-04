@@ -209,6 +209,7 @@
                 backdrop.classList.add('hidden');
             }
         }
-    </script>
+    {{-- Global Confirmation Modal --}}
+    <x-confirm-modal />
 </body>
 </html>

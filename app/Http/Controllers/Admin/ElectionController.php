@@ -10,6 +10,7 @@ use App\Models\AuditLog;
 use App\Models\Election;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -190,24 +191,57 @@ class ElectionController extends Controller
     }
 
     /**
-     * Remove the specified election from storage.
+     * Remove the specified election and all associated data from storage.
      */
-    public function destroy(Election $election): RedirectResponse
+    public function destroy(Request $request, Election $election): RedirectResponse
     {
-        if ($election->participations()->exists() || $election->ballots()->exists()) {
-            return back()->withErrors(['election' => 'Pemilihan tidak dapat dihapus karena sudah memiliki data partisipasi suara.']);
-        }
-
         $electionName = $election->name;
+        $electionId = $election->id;
+        $oldValues = $election->toArray();
 
-        // Cascade delete related requirements and voters
-        $election->requirements()->delete();
-        $election->voters()->delete();
-        $election->delete();
+        DB::transaction(function () use ($election, $electionId) {
+            // 1. Delete voting ballots and participations
+            DB::table('ballots')->where('election_id', $electionId)->delete();
+            DB::table('voting_participations')->where('election_id', $electionId)->delete();
+
+            // 2. Delete candidates
+            DB::table('candidates')->where('election_id', $electionId)->delete();
+
+            // 3. Delete candidate registrations and their relations
+            $regIds = DB::table('candidate_registrations')->where('election_id', $electionId)->pluck('id');
+            if ($regIds->isNotEmpty()) {
+                DB::table('candidate_registration_documents')->whereIn('candidate_registration_id', $regIds)->delete();
+                DB::table('candidate_registration_histories')->whereIn('candidate_registration_id', $regIds)->delete();
+                DB::table('candidate_programs')->whereIn('candidate_registration_id', $regIds)->delete();
+                DB::table('requirement_answers')->whereIn('candidate_registration_id', $regIds)->delete();
+                DB::table('registration_members')->where('election_id', $electionId)->delete();
+                DB::table('candidate_registrations')->where('election_id', $electionId)->delete();
+            }
+
+            // 4. Delete requirements, voters, and import batches
+            DB::table('candidate_requirements')->where('election_id', $electionId)->delete();
+            DB::table('voters')->where('election_id', $electionId)->delete();
+            DB::table('import_batches')->where('election_id', $electionId)->delete();
+
+            // 5. Delete election
+            $election->delete();
+        });
+
+        AuditLog::create([
+            'user_id' => auth()->id(),
+            'actor_type' => 'admin',
+            'action' => 'election.delete',
+            'entity_type' => Election::class,
+            'entity_id' => (string) $electionId,
+            'old_values' => $oldValues,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'created_at' => now(),
+        ]);
 
         return redirect()
             ->route('admin.elections.index')
-            ->with('success', "Periode pemilihan '{$electionName}' berhasil dihapus.");
+            ->with('success', "Periode pemilihan '{$electionName}' beserta seluruh data hasil dan pendaftarannya berhasil dihapus.");
     }
 
     /**

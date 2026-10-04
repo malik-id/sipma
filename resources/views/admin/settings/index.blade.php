@@ -96,5 +96,53 @@
                 </div>
             </form>
         </div>
+
+        {{-- Danger Zone: Reset Database --}}
+        <div class="bg-white rounded-xl shadow-sm border border-rose-200 overflow-hidden">
+            <div class="p-6 border-b border-rose-100 bg-rose-50/60">
+                <div class="flex items-center gap-2 text-rose-900">
+                    <span class="material-symbols-outlined text-rose-600 text-[22px]">warning</span>
+                    <h3 class="text-base font-bold">Zona Bahaya: Reset Database Sistem</h3>
+                </div>
+                <p class="text-xs text-rose-800 mt-1">
+                    Gunakan fitur ini jika Anda ingin mengosongkan seluruh data transaksi pemilihan, pendaftaran calon, surat suara, pemilih, dan data master mahasiswa untuk memulai pemilihan periode baru dari awal.
+                </p>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div class="rounded-lg bg-zinc-50 p-4 border border-zinc-200 text-xs text-zinc-700 space-y-2">
+                    <div class="font-bold text-zinc-900">Data yang akan dihapus secara permanen:</div>
+                    <ul class="list-disc list-inside space-y-1 text-zinc-600">
+                        <li>Seluruh periode pemilihan, syarat berkas, dan DPT (daftar pemilih).</li>
+                        <li>Seluruh pendaftaran bakal calon, berkas dokumen, visi-misi, dan calon resmi.</li>
+                        <li>Seluruh surat suara anonim (ballots) dan partisipasi voting.</li>
+                        <li>Seluruh data mahasiswa dan akun login mahasiswa.</li>
+                    </ul>
+                    <div class="font-bold text-emerald-800 pt-1">
+                        ✓ Akun Admin (Super Admin, Admin, Dosen Pendamping) TIDAK AKAN DIHAPUS.
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ route('admin.settings.reset') }}" class="pt-2 space-y-4"
+                    data-confirm="PERINGATAN AKHIR: Apakah Anda benar-benar yakin ingin me-reset dan menghapus seluruh data database sekarang? Tindakan ini tidak dapat dibatalkan!">
+                    @csrf
+                    <div>
+                        <label class="block text-xs font-bold text-zinc-700 uppercase tracking-wider mb-1.5">
+                            Ketik <span class="font-mono text-rose-600 font-black">RESET-DATA</span> untuk konfirmasi:
+                        </label>
+                        <input type="text" name="confirm_reset" placeholder="RESET-DATA" required
+                            class="w-full max-w-xs text-xs font-mono font-bold rounded-lg border-rose-300 focus:border-rose-500 focus:ring-rose-500 bg-rose-50/30" />
+                    </div>
+
+                    <div>
+                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg transition shadow-sm">
+                            <span class="material-symbols-outlined text-[18px]">delete_forever</span>
+                            Hapus Semua Data &amp; Reset Database
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </div>
 </x-layouts.admin>

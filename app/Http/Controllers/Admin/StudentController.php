@@ -30,8 +30,16 @@ class StudentController extends Controller
             });
         }
 
+        if ($classYear = $request->input('class_year')) {
+            $query->where('class_year', (int) $classYear);
+        }
+
         if ($status = $request->input('status')) {
             $query->where('student_status', $status);
+        }
+
+        if ($prodi = $request->input('study_program')) {
+            $query->where('study_program', $prodi);
         }
 
         if ($semester = $request->input('semester')) {
@@ -40,7 +48,11 @@ class StudentController extends Controller
 
         $students = $query->latest('id')->paginate(15)->withQueryString();
 
-        return view('admin.students.index', compact('students'));
+        $classYears = Student::select('class_year')->distinct()->whereNotNull('class_year')->orderByDesc('class_year')->pluck('class_year');
+        $studyPrograms = Student::select('study_program')->distinct()->whereNotNull('study_program')->orderBy('study_program')->pluck('study_program');
+        $statuses = StudentStatus::cases();
+
+        return view('admin.students.index', compact('students', 'classYears', 'studyPrograms', 'statuses'));
     }
 
     public function create(): View

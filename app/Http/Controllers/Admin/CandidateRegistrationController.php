@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\RecordAudit;
 use App\Actions\ReviewCandidateRegistrationAction;
 use App\Enums\RegistrationStatus;
 use App\Http\Controllers\Controller;
@@ -10,6 +11,7 @@ use App\Models\CandidateRegistrationDocument;
 use App\Models\Election;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -152,6 +154,46 @@ class CandidateRegistrationController extends Controller
         }
 
         return back()->with('success', 'Pendaftaran bakal calon telah ditolak.');
+    }
+
+    public function destroy(Request $request, CandidateRegistration $registration): RedirectResponse
+    {
+        Gate::authorize('review-registrations');
+
+        $regNumber = $registration->registration_number ?? 'DRAFT';
+        $oldValues = $registration->toArray();
+
+        DB::transaction(function () use ($registration) {
+            // If linked to candidate, delete ballots and candidate
+            if ($candidate = $registration->candidate) {
+                DB::table('ballots')->where('candidate_id', $candidate->id)->delete();
+                $candidate->delete();
+            }
+
+            // Delete documents from storage
+            foreach ($registration->documents as $doc) {
+                if (Storage::disk('local')->exists($doc->file_path)) {
+                    Storage::disk('local')->delete($doc->file_path);
+                }
+            }
+
+            if ($registration->photo_path && Storage::disk('public')->exists($registration->photo_path)) {
+                Storage::disk('public')->delete($registration->photo_path);
+            }
+
+            DB::table('candidate_registration_documents')->where('candidate_registration_id', $registration->id)->delete();
+            DB::table('candidate_registration_histories')->where('candidate_registration_id', $registration->id)->delete();
+            DB::table('candidate_programs')->where('candidate_registration_id', $registration->id)->delete();
+            DB::table('requirement_answers')->where('candidate_registration_id', $registration->id)->delete();
+            DB::table('registration_members')->where('candidate_registration_id', $registration->id)->delete();
+
+            $registration->delete();
+        });
+
+        app(RecordAudit::class)->handle(auth()->user(), 'registration.deleted', null, $oldValues, null);
+
+        return redirect()->route('admin.registrations.index')
+            ->with('success', "Pendaftaran bakal calon '{$regNumber}' berhasil dihapus.");
     }
 
     public function downloadDocument(CandidateRegistrationDocument $document): StreamedResponse

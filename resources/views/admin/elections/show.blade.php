@@ -22,15 +22,15 @@
                 </a>
             @endif
 
-            @if ($election->participations_count === 0)
-                <form method="POST" action="{{ route('admin.elections.destroy', $election) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus periode pemilihan ini?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg border border-transparent hover:border-rose-200 transition flex items-center justify-center" title="Hapus Periode">
-                        <span class="material-symbols-outlined text-[18px]">delete</span>
-                    </button>
-                </form>
-            @endif
+            <form method="POST" action="{{ route('admin.elections.destroy', $election) }}"
+                data-confirm="Apakah Anda yakin ingin menghapus seluruh periode pemilihan '{{ $election->name }}' beserta semua data pendaftaran, calon, surat suara, dan pemilihnya? Tindakan ini tidak dapat dibatalkan.">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="px-3.5 py-2 text-xs font-bold text-rose-600 bg-white border border-rose-200 hover:bg-rose-50 rounded-lg shadow-sm transition inline-flex items-center gap-1.5" title="Hapus Periode">
+                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                    <span>Hapus Periode</span>
+                </button>
+            </form>
         </div>
     </div>
 

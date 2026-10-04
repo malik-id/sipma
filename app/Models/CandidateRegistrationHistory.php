@@ -30,6 +30,5 @@ class CandidateRegistrationHistory extends Model
             $model->created_at ??= now();
         });
         static::updating(fn () => throw new \LogicException('Riwayat tidak dapat diubah.'));
-        static::deleting(fn () => throw new \LogicException('Riwayat tidak dapat dihapus.'));
     }
 }

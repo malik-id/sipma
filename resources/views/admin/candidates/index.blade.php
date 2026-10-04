@@ -6,8 +6,8 @@
             <p class="text-xs sm:text-sm text-zinc-500 mt-1">Tetapkan pasangan calon yang telah terverifikasi dan tentukan nomor urut.</p>
         </div>
 
-        {{-- Election Picker --}}
-        <div>
+        {{-- Actions & Election Picker --}}
+        <div class="flex flex-wrap items-center gap-3">
             <form method="GET" action="{{ route('admin.candidates.index') }}">
                 <select name="election_id" class="text-xs border-zinc-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 bg-white shadow-sm font-bold py-2 px-3" onchange="this.form.submit()">
                     @foreach ($elections as $el)
@@ -17,6 +17,12 @@
                     @endforeach
                 </select>
             </form>
+
+            <a href="{{ route('admin.candidates.create', ['election_id' => $activeElection?->id]) }}"
+                class="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold rounded-lg shadow-sm transition inline-flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                <span>Tambah Calon Langsung</span>
+            </a>
         </div>
     </div>
 
@@ -128,12 +134,23 @@
                                 </form>
 
                                 <div class="flex items-center justify-between pt-2 border-t border-zinc-200 text-xs">
-                                    <form method="POST" action="{{ route('admin.candidates.toggle-status', $cand) }}">
-                                        @csrf
-                                        <button type="submit" class="text-xs font-bold {{ $cand->status === 'active' ? 'text-rose-600 hover:text-rose-800' : 'text-emerald-700 hover:text-emerald-900' }}">
-                                            {{ $cand->status === 'active' ? 'Diskualifikasi' : 'Aktifkan Kembali' }}
-                                        </button>
-                                    </form>
+                                    <div class="flex items-center gap-3">
+                                        <form method="POST" action="{{ route('admin.candidates.toggle-status', $cand) }}">
+                                            @csrf
+                                            <button type="submit" class="text-xs font-bold {{ $cand->status === 'active' ? 'text-amber-600 hover:text-amber-800' : 'text-emerald-700 hover:text-emerald-900' }}">
+                                                {{ $cand->status === 'active' ? 'Diskualifikasi' : 'Aktifkan Kembali' }}
+                                            </button>
+                                        </form>
+
+                                        <form method="POST" action="{{ route('admin.candidates.destroy', $cand) }}"
+                                            data-confirm="Hapus pasangan calon '{{ $cand->chairman->name }}' beserta data suara terkait?">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-xs font-bold text-rose-600 hover:text-rose-800 transition">
+                                                Hapus Calon
+                                            </button>
+                                        </form>
+                                    </div>
                                     <span class="text-[10px] text-zinc-400">Ditetapkan: {{ $cand->established_at ? $cand->established_at->translatedFormat('d M Y') : '—' }}</span>
                                 </div>
                             </div>
