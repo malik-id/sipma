@@ -56,22 +56,43 @@
                 @endforelse
             </select>
 
+            {{-- Filter Angkatan --}}
+            <select name="class_year" onchange="this.form.submit()" class="px-3 py-2 text-xs bg-white border border-zinc-300 rounded-lg text-zinc-700 font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm">
+                <option value="">Semua Angkatan</option>
+                @foreach ($classYears as $year)
+                    <option value="{{ $year }}" {{ request('class_year') == $year ? 'selected' : '' }}>
+                        Angkatan {{ $year }}
+                    </option>
+                @endforeach
+            </select>
+
+            {{-- Filter Status Pemilih --}}
+            <select name="status" onchange="this.form.submit()" class="px-3 py-2 text-xs bg-white border border-zinc-300 rounded-lg text-zinc-700 font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm">
+                <option value="">Semua Status DPT</option>
+                <option value="eligible" {{ request('status') === 'eligible' ? 'selected' : '' }}>✓ Eligible (Berhak)</option>
+                <option value="not_eligible" {{ request('status') === 'not_eligible' ? 'selected' : '' }}>✕ Belum Eligible</option>
+                <option value="suspended" {{ request('status') === 'suspended' ? 'selected' : '' }}>⚠ Ditangguhkan</option>
+            </select>
+
             <div class="relative">
                 <input
                     type="text"
                     name="search"
                     value="{{ request('search') }}"
-                    placeholder="Cari pemilih..."
+                    placeholder="Cari nama, NIM, email..."
                     class="pl-8 pr-3 py-2 text-xs bg-white border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm"
                 />
-                <svg class="w-4 h-4 text-zinc-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
+                <span class="material-symbols-outlined text-zinc-400 text-sm absolute left-2.5 top-2.5">search</span>
             </div>
 
             <button type="submit" class="px-3.5 py-2 bg-zinc-950 text-amber-400 text-xs font-bold rounded-lg hover:bg-zinc-800 transition">
                 Filter
             </button>
+            @if (request()->hasAny(['search', 'class_year', 'status']))
+                <a href="{{ route('admin.voters.index', ['election_id' => $selectedElectionId]) }}" class="px-3 py-2 text-xs text-zinc-500 hover:text-zinc-800 font-bold bg-zinc-100 rounded-lg transition">
+                    Reset
+                </a>
+            @endif
         </form>
 
         {{-- Daftarkan Mahasiswa ke DPT Otomatis --}}

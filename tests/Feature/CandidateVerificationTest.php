@@ -10,6 +10,8 @@ use App\Models\Election;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class CandidateVerificationTest extends TestCase
@@ -155,5 +157,49 @@ class CandidateVerificationTest extends TestCase
         $response->assertOk();
         $response->assertSee('Riwayat Status');
         $response->assertSee('Draft');
+    }
+
+    public function test_admin_can_view_and_download_registration_document(): void
+    {
+        Storage::fake('local');
+        $file = UploadedFile::fake()->create('ktm_calon.pdf', 100, 'application/pdf');
+        $storedPath = $file->store('registrations/1', 'local');
+
+        $req = $this->election->requirements()->create([
+            'name' => 'Kartu Tanda Mahasiswa (KTM)',
+            'type' => 'file',
+            'required' => true,
+            'active' => true,
+        ]);
+
+        $reg = CandidateRegistration::create([
+            'election_id' => $this->election->id,
+            'chairman_student_id' => $this->chairman->id,
+            'vice_chairman_student_id' => $this->viceChairman->id,
+            'status' => RegistrationStatus::Submitted,
+            'registration_number' => 'BC-2026-0003',
+        ]);
+
+        $doc = $reg->documents()->create([
+            'requirement_id' => $req->id,
+            'document_type' => 'file',
+            'file_path' => $storedPath,
+            'original_filename' => 'ktm_calon.pdf',
+            'mime_type' => 'application/pdf',
+            'file_size' => 102400,
+            'version' => 1,
+        ]);
+
+        $showResponse = $this->actingAs($this->adminUser)->get(route('admin.registrations.show', $reg));
+        $showResponse->assertOk();
+        $showResponse->assertSee('Kartu Tanda Mahasiswa (KTM)');
+        $showResponse->assertSee('ktm_calon.pdf');
+        $showResponse->assertSee('Lihat Berkas');
+
+        $viewDocResponse = $this->actingAs($this->adminUser)->get(route('admin.registrations.view-document', $doc));
+        $viewDocResponse->assertOk();
+
+        $downloadResponse = $this->actingAs($this->adminUser)->get(route('admin.registrations.download-document', $doc));
+        $downloadResponse->assertOk();
     }
 }

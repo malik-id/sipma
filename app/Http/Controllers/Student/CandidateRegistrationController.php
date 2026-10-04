@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response;
 
 class CandidateRegistrationController extends Controller
 {
@@ -235,5 +236,41 @@ class CandidateRegistrationController extends Controller
         $registration->update(['photo_path' => $path]);
 
         return back()->with('success', 'Foto pasangan calon berhasil diperbarui.');
+    }
+
+    public function viewDocument(CandidateRegistration $registration, CandidateRegistrationDocument $document): Response
+    {
+        Gate::authorize('view', $registration);
+        abort_unless($document->candidate_registration_id === $registration->id, 403);
+
+        if (Storage::disk('local')->exists($document->file_path)) {
+            return Storage::disk('local')->response($document->file_path, $document->original_filename, [
+                'Content-Disposition' => 'inline; filename="'.$document->original_filename.'"',
+            ]);
+        }
+
+        if (Storage::disk('public')->exists($document->file_path)) {
+            return Storage::disk('public')->response($document->file_path, $document->original_filename, [
+                'Content-Disposition' => 'inline; filename="'.$document->original_filename.'"',
+            ]);
+        }
+
+        abort(404, 'File dokumen tidak ditemukan di penyimpanan server.');
+    }
+
+    public function downloadDocument(CandidateRegistration $registration, CandidateRegistrationDocument $document): Response
+    {
+        Gate::authorize('view', $registration);
+        abort_unless($document->candidate_registration_id === $registration->id, 403);
+
+        if (Storage::disk('local')->exists($document->file_path)) {
+            return Storage::disk('local')->download($document->file_path, $document->original_filename);
+        }
+
+        if (Storage::disk('public')->exists($document->file_path)) {
+            return Storage::disk('public')->download($document->file_path, $document->original_filename);
+        }
+
+        abort(404, 'File dokumen tidak ditemukan di penyimpanan server.');
     }
 }

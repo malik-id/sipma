@@ -48,7 +48,9 @@ class StudentController extends Controller
 
         $students = $query->latest('id')->paginate(15)->withQueryString();
 
-        $classYears = Student::select('class_year')->distinct()->whereNotNull('class_year')->orderByDesc('class_year')->pluck('class_year');
+        $dbYears = Student::select('class_year')->distinct()->whereNotNull('class_year')->pluck('class_year')->all();
+        $defaultYears = [2026, 2025, 2024, 2023];
+        $classYears = collect(array_unique(array_merge($defaultYears, $dbYears)))->sortDesc()->values();
         $studyPrograms = Student::select('study_program')->distinct()->whereNotNull('study_program')->orderBy('study_program')->pluck('study_program');
         $statuses = StudentStatus::cases();
 

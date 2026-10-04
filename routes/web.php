@@ -66,6 +66,8 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('/{registration}/submit', [CandidateRegistrationController::class, 'submit'])->name('submit');
         Route::post('/{registration}/resubmit', [CandidateRegistrationController::class, 'resubmit'])->name('resubmit');
         Route::post('/{registration}/dokumen/{requirement}', [CandidateRegistrationController::class, 'uploadDocument'])->name('upload-document');
+        Route::get('/{registration}/dokumen/{document}/view', [CandidateRegistrationController::class, 'viewDocument'])->name('view-document');
+        Route::get('/{registration}/dokumen/{document}/download', [CandidateRegistrationController::class, 'downloadDocument'])->name('download-document');
         Route::post('/{registration}/foto', [CandidateRegistrationController::class, 'uploadPhoto'])->name('upload-photo');
     });
 });
@@ -114,6 +116,7 @@ Route::middleware(['auth', 'active', 'can:access-admin'])->prefix('admin')->name
     Route::post('pendaftaran-bakal-calon/{registration}/revision', [AdminCandidateRegistrationController::class, 'requestRevision'])->name('registrations.request-revision');
     Route::post('pendaftaran-bakal-calon/{registration}/reject', [AdminCandidateRegistrationController::class, 'reject'])->name('registrations.reject');
     Route::delete('pendaftaran-bakal-calon/{registration}', [AdminCandidateRegistrationController::class, 'destroy'])->name('registrations.destroy');
+    Route::get('pendaftaran-bakal-calon/dokumen/{document}/view', [AdminCandidateRegistrationController::class, 'viewDocument'])->name('registrations.view-document');
     Route::get('pendaftaran-bakal-calon/dokumen/{document}/download', [AdminCandidateRegistrationController::class, 'downloadDocument'])->name('registrations.download-document');
 
     // Calon Resmi

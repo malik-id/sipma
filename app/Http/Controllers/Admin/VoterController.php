@@ -37,11 +37,21 @@ class VoterController extends Controller
             });
         }
 
+        if ($classYear = $request->input('class_year')) {
+            $query->whereHas('student', function ($q) use ($classYear) {
+                $q->where('class_year', (int) $classYear);
+            });
+        }
+
         if ($status = $request->input('status')) {
             $query->where('voter_status', $status);
         }
 
         $voters = $query->paginate(20)->withQueryString();
+
+        $dbYears = Student::select('class_year')->distinct()->whereNotNull('class_year')->pluck('class_year')->all();
+        $defaultYears = [2026, 2025, 2024, 2023];
+        $classYears = collect(array_unique(array_merge($defaultYears, $dbYears)))->sortDesc()->values();
 
         $stats = [
             'total' => $selectedElectionId ? Voter::where('election_id', $selectedElectionId)->count() : 0,
@@ -55,6 +65,7 @@ class VoterController extends Controller
             'selectedElectionId' => $selectedElectionId,
             'stats' => $stats,
             'statuses' => VoterStatus::cases(),
+            'classYears' => $classYears,
         ]);
     }
 

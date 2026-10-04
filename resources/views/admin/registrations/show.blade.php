@@ -168,14 +168,19 @@
             {{-- 3. Verifikasi Dokumen Persyaratan --}}
             <div class="bg-white rounded-xl border border-zinc-200 shadow-sm p-6">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400">Verifikasi Dokumen Persyaratan</h3>
-                    <span class="text-xs text-zinc-400">Status dokumen harus valid semua sebelum pendaftaran disetujui.</span>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400">Verifikasi Dokumen &amp; Berkas Persyaratan</h3>
+                    <span class="text-xs text-zinc-400">Status berkas harus valid semua sebelum pendaftaran disetujui.</span>
                 </div>
 
                 <div class="space-y-4">
-                    @forelse ($registration->election->requirements->where('active', true)->where('type', 'document') as $req)
+                    @forelse ($registration->election->requirements->where('active', true) as $req)
                         @php
-                            $doc = $registration->currentDocuments->firstWhere('requirement_id', $req->id);
+                            $doc = in_array($req->type, ['file', 'image', 'document'])
+                                ? $registration->currentDocuments->firstWhere('requirement_id', $req->id)
+                                : null;
+                            $answer = $req->type === 'text'
+                                ? $registration->answers->firstWhere('requirement_id', $req->id)
+                                : null;
                             $docBadge = match($doc?->verification_status) {
                                 'valid' => 'bg-emerald-50 text-emerald-800 border-emerald-200',
                                 'invalid' => 'bg-rose-50 text-rose-800 border-rose-200',
@@ -187,30 +192,66 @@
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
                                 <div>
                                     <div class="font-bold text-zinc-900 text-sm flex items-center gap-2">
-                                        {{ $req->name }}
+                                        <span class="material-symbols-outlined text-base {{ $doc ? 'text-amber-500' : 'text-zinc-400' }}">
+                                            {{ $req->type === 'text' ? 'description' : ($req->type === 'image' ? 'image' : 'folder') }}
+                                        </span>
+                                        <span>{{ $req->name }}</span>
                                         @if ($req->required)
                                             <span class="text-rose-500 text-xs">*wajib</span>
                                         @endif
                                     </div>
                                     @if ($req->description)
-                                        <div class="text-xs text-zinc-400 mt-0.5">{{ $req->description }}</div>
+                                        <div class="text-xs text-zinc-400 mt-0.5 ml-6">{{ $req->description }}</div>
                                     @endif
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border {{ $docBadge }}">
-                                        {{ $doc ? strtoupper(str_replace('_', ' ', $doc->verification_status)) : 'BELUM DIUNGGAH' }}
-                                    </span>
-                                    @if ($doc)
-                                        <a href="{{ route('admin.registrations.download-document', $doc) }}"
-                                           class="px-3 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold rounded-lg transition inline-flex items-center gap-1">
-                                            Unduh Berkas
-                                        </a>
+
+                                <div class="flex flex-wrap items-center gap-2">
+                                    @if ($req->type === 'text')
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border bg-zinc-100 text-zinc-700 border-zinc-200">
+                                            {{ $answer ? 'DIISI' : 'BELUM DIISI' }}
+                                        </span>
+                                    @else
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border {{ $docBadge }}">
+                                            {{ $doc ? strtoupper(str_replace('_', ' ', $doc->verification_status)) : 'BELUM DIUNGGAH' }}
+                                        </span>
+
+                                        @if ($doc)
+                                            {{-- Tombol Lihat / Preview Dokumen --}}
+                                            <a href="{{ route('admin.registrations.view-document', $doc) }}"
+                                               target="_blank"
+                                               class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold rounded-lg transition inline-flex items-center gap-1 shadow-2xs">
+                                                <span class="material-symbols-outlined text-sm">visibility</span>
+                                                <span>Lihat Berkas</span>
+                                            </a>
+
+                                            {{-- Tombol Unduh Dokumen --}}
+                                            <a href="{{ route('admin.registrations.download-document', $doc) }}"
+                                               class="px-3 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold rounded-lg transition inline-flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-sm">download</span>
+                                                <span>Unduh</span>
+                                            </a>
+                                        @endif
                                     @endif
                                 </div>
                             </div>
 
+                            {{-- Info File Tambahan --}}
+                            @if ($doc)
+                                <div class="mt-2 text-xs text-zinc-500 flex items-center gap-2 bg-zinc-50 px-3 py-1.5 rounded-lg border border-zinc-100">
+                                    <span class="font-mono text-zinc-700 truncate max-w-sm">{{ $doc->original_filename }}</span>
+                                    <span>&bull;</span>
+                                    <span>{{ number_format($doc->file_size / 1024, 1) }} KB</span>
+                                    <span>&bull;</span>
+                                    <span class="text-zinc-400">Versi {{ $doc->version }}</span>
+                                </div>
+                            @elseif ($req->type === 'text' && $answer)
+                                <div class="mt-2 text-xs text-zinc-700 bg-zinc-50 p-3 rounded-lg border border-zinc-100 leading-relaxed">
+                                    {{ $answer->answer }}
+                                </div>
+                            @endif
+
                             @if ($doc && $doc->verification_note)
-                                <div class="text-xs text-zinc-600 bg-zinc-50 p-2.5 rounded-lg mb-3 border border-zinc-100">
+                                <div class="text-xs text-zinc-600 bg-zinc-50 p-2.5 rounded-lg mt-2 border border-zinc-100">
                                     <span class="font-bold text-zinc-700">Catatan Panitia:</span> {{ $doc->verification_note }}
                                 </div>
                             @endif

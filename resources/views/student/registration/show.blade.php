@@ -172,11 +172,11 @@
                     Dokumen Persyaratan
                 </h2>
                 <div class="space-y-3">
-                    @foreach ($registration->election->requirements->where('active', true)->where('type', 'file') as $req)
+                    @foreach ($registration->election->requirements->where('active', true)->whereIn('type', ['file', 'image', 'document']) as $req)
                         @php
                             $doc = $registration->currentDocuments->firstWhere('requirement_id', $req->id);
                         @endphp
-                        <div class="flex items-center justify-between p-3 rounded-xl border {{ $doc ? 'border-emerald-200 bg-emerald-50/50' : 'border-zinc-200 bg-zinc-50' }}">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border {{ $doc ? 'border-emerald-200 bg-emerald-50/50' : 'border-zinc-200 bg-zinc-50' }} gap-3">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-lg flex items-center justify-center {{ $doc ? 'bg-emerald-100 text-emerald-600' : 'bg-zinc-200 text-zinc-400' }}">
                                     @if ($doc)
@@ -191,30 +191,44 @@
                                         @if ($req->required) <span class="text-rose-500">*</span> @endif
                                     </div>
                                     @if ($doc)
-                                        <div class="text-xs text-zinc-400 truncate max-w-xs">{{ $doc->original_filename }}</div>
+                                        <div class="text-xs text-zinc-500 truncate max-w-xs flex items-center gap-1.5 mt-0.5">
+                                            <span class="font-mono">{{ $doc->original_filename }}</span>
+                                            <span>&bull;</span>
+                                            <span>{{ number_format($doc->file_size / 1024, 1) }} KB</span>
+                                        </div>
                                     @else
                                         <div class="text-xs text-zinc-400">Belum diunggah</div>
                                     @endif
                                 </div>
                             </div>
 
-                            @if (in_array($registration->status->value, ['draft', 'revision_required']))
-                                <form method="POST"
-                                      action="{{ route('registration.upload-document', [$registration, $req]) }}"
-                                      enctype="multipart/form-data"
-                                      class="flex items-center gap-2">
-                                    @csrf
-                                    <input type="file" name="document" id="doc_{{ $req->id }}"
-                                        accept="{{ implode(',', array_map(fn($e) => '.'.$e, $req->allowed_extensions ?? ['pdf'])) }}"
-                                        class="hidden"
-                                        onchange="this.form.submit()" />
-                                    <label for="doc_{{ $req->id }}"
-                                        class="cursor-pointer px-3 py-1.5 text-xs font-bold text-zinc-950 bg-amber-500 hover:bg-amber-400 rounded-lg shadow-xs transition flex items-center gap-1">
-                                        <span class="material-symbols-outlined text-sm">upload</span>
-                                        {{ $doc ? 'Ganti' : 'Unggah' }}
-                                    </label>
-                                </form>
-                            @endif
+                            <div class="flex items-center gap-2 self-end sm:self-center">
+                                @if ($doc)
+                                    <a href="{{ route('registration.view-document', [$registration, $doc]) }}" target="_blank"
+                                       class="px-2.5 py-1.5 text-xs font-semibold text-zinc-700 bg-white hover:bg-zinc-100 border border-zinc-200 rounded-lg transition inline-flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-sm">visibility</span>
+                                        <span>Lihat</span>
+                                    </a>
+                                @endif
+
+                                @if (in_array($registration->status->value, ['draft', 'revision_required']))
+                                    <form method="POST"
+                                          action="{{ route('registration.upload-document', [$registration, $req]) }}"
+                                          enctype="multipart/form-data"
+                                          class="flex items-center gap-2">
+                                        @csrf
+                                        <input type="file" name="document" id="doc_{{ $req->id }}"
+                                            accept="{{ implode(',', array_map(fn($e) => '.'.$e, $req->allowed_extensions ?? ['pdf'])) }}"
+                                            class="hidden"
+                                            onchange="this.form.submit()" />
+                                        <label for="doc_{{ $req->id }}"
+                                            class="cursor-pointer px-3 py-1.5 text-xs font-bold text-zinc-950 bg-amber-500 hover:bg-amber-400 rounded-lg shadow-xs transition flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-sm">upload</span>
+                                            {{ $doc ? 'Ganti' : 'Unggah' }}
+                                        </label>
+                                    </form>
+                                @endif
+                            </div>
                         </div>
                     @endforeach
                 </div>
